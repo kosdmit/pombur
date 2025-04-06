@@ -1,0 +1,20 @@
+[project]
+name = "pombur"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "dishka>=1.5.2",
+    "litestar[pydantic,sqlalchemy,standard]>=2.15.1",
+    "psycopg[binary]>=3.2.6",
+]
+
+[dependency-groups]
+dev = [
+    "mypy>=1.15.0",
+]
+
+
+[tool.mypy]
+strict = true
