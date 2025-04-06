@@ -13,8 +13,32 @@ dependencies = [
 [dependency-groups]
 dev = [
     "mypy>=1.15.0",
+    "ruff>=0.11.4",
 ]
 
 
 [tool.mypy]
 strict = true
+
+
+[tool.ruff]
+line-length = 100
+exclude = ["migrations"]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[tool.ruff.lint]
+select = ["ALL"]
+ignore = [
+    # pydocstyle (D)
+    "D100",  # Missing docstring in public module
+    "D101",  # Missing docstring in public class
+    "D102",  # Missing docstring in public method
+    "D103",  # Missing docstring in public function
+    "D104",  # Missing docstring in public package
+    "D107",  # Missing docstring in `__init__`
+
+    # formatter compatibility
+    "COM812",  # Missing trailing comma
+]

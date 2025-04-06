@@ -1,13 +1,14 @@
-from pydantic import BaseModel, Field
 import os
+
+from pydantic import BaseModel, Field
 
 
 class PostgresConfig(BaseModel):
-    host: str = Field(alias='POSTGRES_HOST')
-    port: int = Field(alias='POSTGRES_PORT')
-    login: str = Field(alias='POSTGRES_USER')
-    password: str = Field(alias='POSTGRES_PASSWORD')
-    database: str = Field(alias='POSTGRES_DB')
+    host: str = Field(alias="POSTGRES_HOST")
+    port: int = Field(alias="POSTGRES_PORT")
+    login: str = Field(alias="POSTGRES_USER")
+    password: str = Field(alias="POSTGRES_PASSWORD")
+    database: str = Field(alias="POSTGRES_DB")
 
 
 class AppConfig(BaseModel):

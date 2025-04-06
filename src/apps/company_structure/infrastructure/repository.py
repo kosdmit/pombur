@@ -10,8 +10,7 @@ class DepartmentRepository(ports.FetchAllDepartmentsPort, ports.SaveDepartmentPo
     async def fetch_all(self) -> list[entities.DepartmentEntity]:
         orm_departments = await self._department_gateway.fetch_all()
         return [
-            self._orm_department_to_entity(orm_department)
-            for orm_department in orm_departments
+            self._orm_department_to_entity(orm_department) for orm_department in orm_departments
         ]
 
     async def save(self, department: entities.DepartmentEntity) -> None:
@@ -32,4 +31,3 @@ class DepartmentRepository(ports.FetchAllDepartmentsPort, ports.SaveDepartmentPo
             title=entity.title,
             parent_id=entity.parent_id,
         )
-

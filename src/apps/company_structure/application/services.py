@@ -1,7 +1,6 @@
 import uuid
 
-from apps.company_structure.application import ports
-from apps.company_structure.application import use_cases, dto
+from apps.company_structure.application import dto, ports, use_cases
 from apps.company_structure.domain import entities
 
 
@@ -10,9 +9,9 @@ class DepartmentService(
     use_cases.CreateDepartmentUseCase,
 ):
     def __init__(
-            self,
-            fetch_all_port: ports.FetchAllDepartmentsPort,
-            save_port: ports.SaveDepartmentPort,
+        self,
+        fetch_all_port: ports.FetchAllDepartmentsPort,
+        save_port: ports.SaveDepartmentPort,
     ) -> None:
         self._fetch_all_port = fetch_all_port
         self._save_port = save_port
@@ -21,8 +20,8 @@ class DepartmentService(
         return await self._fetch_all_port.fetch_all()
 
     async def create(
-            self,
-            department_data: dto.NewDepartmentDTO,
+        self,
+        department_data: dto.NewDepartmentDTO,
     ) -> entities.DepartmentEntity:
         department_entity = entities.DepartmentEntity(
             id=uuid.uuid4(),

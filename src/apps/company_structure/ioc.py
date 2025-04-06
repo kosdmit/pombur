@@ -1,12 +1,11 @@
 from collections.abc import AsyncIterable
 
-from dishka import Provider, provide_all, WithParents, Scope, from_context, provide
-from sqlalchemy.ext.asyncio import async_sessionmaker, AsyncSession
+from dishka import Provider, Scope, WithParents, from_context, provide, provide_all
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from apps.company_structure.application import services
-from apps.company_structure.infrastructure.configs import AppConfig, PostgresConfig
-from apps.company_structure.infrastructure import repository
-from apps.company_structure.infrastructure import gateways
+from apps.company_structure.infrastructure import gateways, repository
+from apps.company_structure.infrastructure.configs import AppConfig
 from apps.company_structure.infrastructure.connections import session_maker
 
 
@@ -19,27 +18,24 @@ class InfrastructureProvider(Provider):
 
     @provide(scope=Scope.REQUEST)
     async def psql_session(
-            self,
-            psql_session_maker: async_sessionmaker[AsyncSession],
+        self,
+        psql_session_maker: async_sessionmaker[AsyncSession],
     ) -> AsyncIterable[AsyncSession]:
         async with psql_session_maker() as session:
             yield session
-
-
 
 
 class AppProvider(Provider):
     scope = Scope.REQUEST
 
     services = provide_all(
-        WithParents[services.DepartmentService],  # type: ignore
+        WithParents[services.DepartmentService],  # type: ignore[misc]
     )
 
     repositories = provide_all(
-        WithParents[repository.DepartmentRepository],  # type: ignore
+        WithParents[repository.DepartmentRepository],  # type: ignore[misc]
     )
 
     gateways = provide_all(
-        WithParents[gateways.DepartmentGateway],  # type: ignore
+        WithParents[gateways.DepartmentGateway],  # type: ignore[misc]
     )
-

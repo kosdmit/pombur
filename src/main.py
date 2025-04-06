@@ -1,12 +1,10 @@
 from dishka import make_async_container
+from dishka.integrations import litestar as litestar_integration
 from litestar import Litestar
 from litestar.openapi import OpenAPIConfig
 from litestar.openapi.plugins import SwaggerRenderPlugin
 
 from apps.company_structure.controllers.http import DepartmentHTTPController
-
-from dishka.integrations import litestar as litestar_integration
-
 from apps.company_structure.infrastructure.configs import AppConfig
 from apps.company_structure.ioc import AppProvider, InfrastructureProvider
 

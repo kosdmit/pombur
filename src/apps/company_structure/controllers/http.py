@@ -1,6 +1,6 @@
 from dishka import FromDishka
 from dishka.integrations.litestar import inject
-from litestar import Controller, route, HttpMethod, get
+from litestar import Controller, get
 
 from apps.company_structure.application.use_cases import GetDepartmentsListUseCase
 from apps.company_structure.controllers import schemas
@@ -12,8 +12,8 @@ class DepartmentHTTPController(Controller):
     @get()
     @inject
     async def list(
-            self,
-            use_case: FromDishka[GetDepartmentsListUseCase],
+        self,
+        use_case: FromDishka[GetDepartmentsListUseCase],
     ) -> list[schemas.DepartmentSchema]:
         department_entities = await use_case.list()
 
