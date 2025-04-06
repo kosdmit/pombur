@@ -20,17 +20,15 @@ class GenericGateway[OrmModel](ABC):
 
         Returns:
             Sequence[OrmModel]: A sequence of ORM models.
-
         """
         raise NotImplementedError
 
     @abstractmethod
-    async def save(self, obj: OrmModel) -> None:
+    async def save(self, orm_obj: OrmModel) -> None:
         """Save the object to the database.
 
         Args:
-            obj (OrmModel): The ORM model to save.
-
+            orm_obj (OrmModel): The ORM model to save.
         """
         raise NotImplementedError
 
@@ -38,10 +36,10 @@ class GenericGateway[OrmModel](ABC):
 @final
 class DepartmentGateway(GenericGateway[models.Department]):
     async def fetch_all(self) -> Sequence[models.Department]:
-        result = await self._session.execute(
+        query_result = await self._session.execute(
             sa.select(models.Department).order_by(models.Department.title),
         )
-        return result.scalars().all()
+        return query_result.scalars().all()
 
-    async def save(self, obj: models.Department) -> None:
-        await self._session.merge(obj)
+    async def save(self, orm_obj: models.Department) -> None:
+        await self._session.merge(orm_obj)

@@ -14,6 +14,7 @@ dependencies = [
 dev = [
     "mypy>=1.15.0",
     "ruff>=0.11.4",
+    "wemake-python-styleguide>=1.1.0",
 ]
 
 

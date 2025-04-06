@@ -1,6 +1,7 @@
 from collections.abc import AsyncIterable
 
-from dishka import Provider, Scope, WithParents, from_context, provide, provide_all
+import dishka as di
+from dishka import Provider, Scope, WithParents, provide, provide_all
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from apps.company_structure.application import services
@@ -10,7 +11,7 @@ from apps.company_structure.infrastructure.connections import session_maker
 
 
 class InfrastructureProvider(Provider):
-    config = from_context(provides=AppConfig, scope=Scope.APP)
+    config = di.from_context(provides=AppConfig, scope=Scope.APP)
 
     @provide(scope=Scope.APP)
     def psql_session_maker(self, config: AppConfig) -> async_sessionmaker[AsyncSession]:

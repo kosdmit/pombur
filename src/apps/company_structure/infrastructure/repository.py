@@ -14,7 +14,7 @@ class DepartmentRepository(ports.FetchAllDepartmentsPort, ports.SaveDepartmentPo
         ]
 
     async def save(self, department: entities.DepartmentEntity) -> None:
-        await self._department_gateway.save(obj=self._entity_to_orm_department(department))
+        await self._department_gateway.save(orm_obj=self._entity_to_orm_department(department))
 
     @staticmethod
     def _orm_department_to_entity(orm_department: models.Department) -> entities.DepartmentEntity:
