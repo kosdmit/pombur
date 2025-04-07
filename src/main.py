@@ -7,7 +7,7 @@ from litestar import Litestar
 from litestar.openapi import OpenAPIConfig
 from litestar.openapi.plugins import SwaggerRenderPlugin
 
-from apps.company_structure.controllers.http import DepartmentHTTPController
+from apps.company_structure.controllers.router import company_structure_router
 from apps.company_structure.infrastructure.configs import AppConfig
 from apps.company_structure.ioc import AppProvider, InfrastructureProvider
 
@@ -28,7 +28,7 @@ async def app_lifespan(app: Litestar) -> AsyncGenerator[None]:
 
 def get_app() -> Litestar:
     litestar_app = Litestar(
-        route_handlers=[DepartmentHTTPController],
+        route_handlers=[company_structure_router],
         openapi_config=OpenAPIConfig(
             title="Pombur project",
             version="0.1.0",
