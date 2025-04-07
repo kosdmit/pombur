@@ -8,7 +8,7 @@ from apps.company_structure.domain import entities
 
 class GetDepartmentsListUseCase(Protocol):
     @abstractmethod
-    async def list(self) -> list[entities.DepartmentEntity | entities.RootDepartmentEntity]:
+    async def list(self) -> list[entities.BaseDepartmentEntity]:
         raise NotImplementedError
 
 
@@ -21,4 +21,14 @@ class GetDepartmentUseCase(Protocol):
 class CreateDepartmentUseCase(Protocol):
     @abstractmethod
     async def create(self, department_data: dto.NewDepartmentDTO) -> entities.DepartmentEntity:
+        raise NotImplementedError
+
+
+class UpdateDepartmentUseCase(Protocol):
+    @abstractmethod
+    async def update(
+        self,
+        department_id: uuid.UUID,
+        department_data: dto.UpdateDepartmentDTO,
+    ) -> entities.DepartmentEntity:
         raise NotImplementedError

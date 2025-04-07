@@ -6,3 +6,9 @@ from uuid import UUID
 class NewDepartmentDTO:
     title: str
     parent_id: UUID
+
+
+@dataclass(slots=True)
+class UpdateDepartmentDTO:
+    title: str
+    parent_id: UUID

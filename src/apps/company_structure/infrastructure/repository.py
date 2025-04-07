@@ -28,7 +28,7 @@ class DepartmentRepository(
         self._db_session = db_session
         self._department_gateway = department_gateway
 
-    async def fetch_all(self) -> list[entities.DepartmentEntity | entities.RootDepartmentEntity]:
+    async def fetch_all(self) -> list[entities.BaseDepartmentEntity]:
         orm_departments = await self._department_gateway.fetch_all()
         return [
             self._orm_department_to_entity(orm_department) for orm_department in orm_departments

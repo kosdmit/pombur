@@ -7,7 +7,7 @@ from apps.company_structure.domain import entities
 
 class FetchAllDepartmentsPort(Protocol):
     @abstractmethod
-    async def fetch_all(self) -> list[entities.DepartmentEntity | entities.RootDepartmentEntity]:
+    async def fetch_all(self) -> list[entities.BaseDepartmentEntity]:
         raise NotImplementedError
 
 

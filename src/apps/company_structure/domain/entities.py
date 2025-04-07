@@ -6,6 +6,7 @@ from uuid import UUID
 class BaseDepartmentEntity:
     id: UUID
     title: str
+    parent_id: UUID | None
 
 
 @dataclass(slots=True)
