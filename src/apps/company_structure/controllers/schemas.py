@@ -1,7 +1,9 @@
-from pydantic import UUID4, BaseModel
+from uuid import UUID
+
+from pydantic import BaseModel
 
 
 class DepartmentSchema(BaseModel):
-    id: UUID4
+    id: UUID
     title: str
-    parent_id: UUID4
+    parent_id: UUID | None

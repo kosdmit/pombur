@@ -32,6 +32,7 @@ convention = "google"
 
 [tool.ruff.lint]
 select = ["ALL"]
+external = ["WPS"]
 ignore = [
     # pydocstyle (D)
     "D100",  # Missing docstring in public module
