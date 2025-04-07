@@ -9,16 +9,19 @@ class DepartmentService(  # noqa: WPS215  # reason: explicit define implemented 
     use_cases.GetDepartmentUseCase,
     use_cases.CreateDepartmentUseCase,
     use_cases.UpdateDepartmentUseCase,
+    use_cases.DeleteDepartmentUseCase,
 ):
     def __init__(
         self,
         fetch_all_port: ports.FetchAllDepartmentsPort,
         fetch_one_port: ports.FetchOneDepartmentPort,
         save_port: ports.SaveDepartmentPort,
+        delete_port: ports.DeleteDepartmentPort,
     ) -> None:
         self._fetch_all_port = fetch_all_port
         self._fetch_one_port = fetch_one_port
         self._save_port = save_port
+        self._delete_port = delete_port
 
     async def list(self) -> list[entities.BaseDepartmentEntity]:
         return await self._fetch_all_port.fetch_all()
@@ -48,3 +51,6 @@ class DepartmentService(  # noqa: WPS215  # reason: explicit define implemented 
         department_entity.parent_id = department_data.parent_id
         await self._save_port.save(department_entity)
         return department_entity
+
+    async def delete(self, department_id: uuid.UUID) -> None:
+        await self._delete_port.delete(department_id)

@@ -24,6 +24,7 @@ class GenericGateway[OrmModel](ABC):
         """
         raise NotImplementedError
 
+    @abstractmethod
     async def fetch_one(self, obj_id: uuid.UUID) -> OrmModel:
         """Fetch one record from the database.
 
@@ -86,3 +87,8 @@ class DepartmentGateway(GenericGateway[models.Department]):
             raise RootDepartmentDoesNotExistError
 
         return query_result.scalars().one()
+
+    async def delete(self, obj_id: uuid.UUID) -> None:
+        await self._session.execute(
+            sa.delete(models.Department).where(models.Department.id == obj_id),
+        )

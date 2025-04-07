@@ -32,3 +32,9 @@ class UpdateDepartmentUseCase(Protocol):
         department_data: dto.UpdateDepartmentDTO,
     ) -> entities.DepartmentEntity:
         raise NotImplementedError
+
+
+class DeleteDepartmentUseCase(Protocol):
+    @abstractmethod
+    async def delete(self, department_id: uuid.UUID) -> None:
+        raise NotImplementedError

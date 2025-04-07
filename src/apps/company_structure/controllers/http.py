@@ -3,7 +3,7 @@ from typing import Annotated
 
 from dishka import FromDishka
 from dishka.integrations.litestar import inject
-from litestar import Controller, get, post, put
+from litestar import Controller, delete, get, post, put
 from litestar.params import Body
 
 from apps.company_structure.application import dto, use_cases
@@ -72,3 +72,12 @@ class DepartmentHTTPController(Controller):
             title=department_entity.title,
             parent_id=department_entity.parent_id,
         )
+
+    @delete("/{department_id:uuid}")
+    @inject
+    async def delete(
+        self,
+        use_case: FromDishka[use_cases.DeleteDepartmentUseCase],
+        department_id: uuid.UUID,
+    ) -> None:
+        await use_case.delete(department_id)

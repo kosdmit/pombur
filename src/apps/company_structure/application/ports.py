@@ -21,3 +21,9 @@ class SaveDepartmentPort(Protocol):
     @abstractmethod
     async def save(self, department: entities.DepartmentEntity) -> None:
         raise NotImplementedError
+
+
+class DeleteDepartmentPort(Protocol):
+    @abstractmethod
+    async def delete(self, department_id: uuid.UUID) -> None:
+        raise NotImplementedError
