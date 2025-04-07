@@ -1,4 +1,5 @@
 import uuid
+from typing import override
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -56,12 +57,14 @@ class DepartmentRepository(  # noqa: WPS215  # reason: explicit define implement
         self._db_session = db_session
         self._department_gateway = department_gateway
 
-    async def fetch_all(self) -> list[entities.BaseDepartmentEntity]:
+    @override
+    async def fetch_all(self) -> list[entities.DepartmentEntity | entities.RootDepartmentEntity]:
         orm_departments = await self._department_gateway.fetch_all()
         return [
             _convert_orm_department_to_entity(orm_department) for orm_department in orm_departments
         ]
 
+    @override
     async def fetch_one(self, department_id: uuid.UUID) -> entities.DepartmentEntity:
         orm_department = await self._department_gateway.fetch_one(obj_id=department_id)
         department_entity = _convert_orm_department_to_entity(orm_department)
@@ -82,10 +85,12 @@ class DepartmentRepository(  # noqa: WPS215  # reason: explicit define implement
             )
         return root_department_entity
 
+    @override
     async def save(self, department: entities.DepartmentEntity) -> None:
         await self._department_gateway.save(orm_obj=_convert_entity_to_orm_department(department))
         await self._db_session.commit()
 
+    @override
     async def delete(self, department_id: uuid.UUID) -> None:
         await self._department_gateway.delete(obj_id=department_id)
         await self._db_session.commit()

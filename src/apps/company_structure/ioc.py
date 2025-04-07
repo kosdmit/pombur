@@ -27,7 +27,7 @@ class InfrastructureProvider(Provider):
 
 
 class AppProvider(Provider):
-    scope = Scope.REQUEST
+    scope: di.BaseScope | None = Scope.REQUEST
 
     services = provide_all(
         WithParents[services.DepartmentService],  # type: ignore[misc]

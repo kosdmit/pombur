@@ -1,4 +1,5 @@
 import uuid
+from typing import override
 
 from apps.company_structure.application import dto, ports, use_cases
 from apps.company_structure.domain import entities
@@ -23,12 +24,15 @@ class DepartmentService(  # noqa: WPS215  # reason: explicit define implemented 
         self._save_port = save_port
         self._delete_port = delete_port
 
-    async def list(self) -> list[entities.BaseDepartmentEntity]:
+    @override
+    async def list(self) -> list[entities.DepartmentEntity | entities.RootDepartmentEntity]:
         return await self._fetch_all_port.fetch_all()
 
+    @override
     async def get(self, department_id: uuid.UUID) -> entities.DepartmentEntity:
         return await self._fetch_one_port.fetch_one(department_id)
 
+    @override
     async def create(
         self,
         department_data: dto.NewDepartmentDTO,
@@ -41,6 +45,7 @@ class DepartmentService(  # noqa: WPS215  # reason: explicit define implemented 
         await self._save_port.save(department_entity)
         return department_entity
 
+    @override
     async def update(
         self,
         department_id: uuid.UUID,
@@ -52,5 +57,6 @@ class DepartmentService(  # noqa: WPS215  # reason: explicit define implemented 
         await self._save_port.save(department_entity)
         return department_entity
 
+    @override
     async def delete(self, department_id: uuid.UUID) -> None:
         await self._delete_port.delete(department_id)

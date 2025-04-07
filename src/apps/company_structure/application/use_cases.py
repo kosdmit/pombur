@@ -8,7 +8,7 @@ from apps.company_structure.domain import entities
 
 class GetDepartmentsListUseCase(Protocol):
     @abstractmethod
-    async def list(self) -> list[entities.BaseDepartmentEntity]:
+    async def list(self) -> list[entities.DepartmentEntity | entities.RootDepartmentEntity]:
         raise NotImplementedError
 
 

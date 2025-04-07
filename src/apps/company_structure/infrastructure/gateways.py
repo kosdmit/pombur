@@ -1,7 +1,7 @@
 import uuid
 from abc import ABC, abstractmethod
 from collections.abc import Sequence
-from typing import TypeVar, final
+from typing import TypeVar, final, override
 
 import sqlalchemy as sa
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -45,6 +45,15 @@ class GenericGateway[OrmModel](ABC):
         """
         raise NotImplementedError
 
+    @abstractmethod
+    async def delete(self, obj_id: uuid.UUID) -> None:
+        """Delete the object from the database.
+
+        Args:
+            obj_id (uuid.UUID): A primary key of the object to delete.
+        """
+        raise NotImplementedError
+
 
 class RootDepartmentDoesNotExistError(Exception):
     def __init__(self) -> None:
@@ -61,18 +70,21 @@ class GottenMoreThanOneRootDepartmentError(Exception):
 
 @final
 class DepartmentGateway(GenericGateway[models.Department]):
+    @override
     async def fetch_all(self) -> Sequence[models.Department]:
         query_result = await self._session.execute(
             sa.select(models.Department).order_by(models.Department.title),
         )
         return query_result.scalars().all()
 
+    @override
     async def fetch_one(self, obj_id: uuid.UUID) -> models.Department:
         query_result = await self._session.execute(
             sa.select(models.Department).where(models.Department.id == obj_id),
         )
         return query_result.scalars().one()
 
+    @override
     async def save(self, orm_obj: models.Department) -> None:
         await self._session.merge(orm_obj)
 
@@ -88,6 +100,7 @@ class DepartmentGateway(GenericGateway[models.Department]):
 
         return query_result.scalars().one()
 
+    @override
     async def delete(self, obj_id: uuid.UUID) -> None:
         await self._session.execute(
             sa.delete(models.Department).where(models.Department.id == obj_id),
