@@ -1,3 +1,6 @@
+from collections.abc import AsyncGenerator
+from contextlib import asynccontextmanager
+
 from dishka import make_async_container
 from dishka.integrations import litestar as litestar_integration
 from litestar import Litestar
@@ -12,8 +15,15 @@ config = AppConfig()
 container = make_async_container(
     InfrastructureProvider(),
     AppProvider(),
+    litestar_integration.LitestarProvider(),
     context={AppConfig: config},
 )
+
+
+@asynccontextmanager
+async def app_lifespan(app: Litestar) -> AsyncGenerator[None]:
+    yield
+    await app.state.dishka_container.close()
 
 
 def get_app() -> Litestar:
@@ -25,6 +35,7 @@ def get_app() -> Litestar:
             render_plugins=[SwaggerRenderPlugin()],
             path="/docs",
         ),
+        lifespan=[app_lifespan],
     )
 
     litestar_integration.setup_dishka(container, litestar_app)
