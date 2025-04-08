@@ -2,11 +2,11 @@ import uuid
 from abc import abstractmethod
 from typing import Protocol, TypeVar
 
-from apps.company_structure.application import dto
+from litestar.dto import DTOData
+
 from apps.company_structure.domain import entities
 
 EntityT = TypeVar("EntityT")
-DtoT = TypeVar("DtoT")
 
 
 class GenericGetListUseCase[EntityT](Protocol):
@@ -14,8 +14,13 @@ class GenericGetListUseCase[EntityT](Protocol):
         raise NotImplementedError
 
 
-class GenericCreateUseCase[DtoT, EntityT](Protocol):
-    async def create(self, input_data: DtoT) -> EntityT:
+class GenericGetUseCase[EntityT](Protocol):
+    async def get(self, entity_id: uuid.UUID) -> EntityT:
+        raise NotImplementedError
+
+
+class GenericCreateUseCase[EntityT](Protocol):
+    async def create(self, input_data: DTOData[EntityT]) -> EntityT:
         raise NotImplementedError
 
 
@@ -25,24 +30,12 @@ class GetDepartmentsListUseCase(Protocol):
         raise NotImplementedError
 
 
-class GetDepartmentUseCase(Protocol):
-    @abstractmethod
-    async def get(self, department_id: uuid.UUID) -> entities.DepartmentEntity:
-        raise NotImplementedError
-
-
-class CreateDepartmentUseCase(Protocol):
-    @abstractmethod
-    async def create(self, department_data: dto.NewDepartmentDTO) -> entities.DepartmentEntity:
-        raise NotImplementedError
-
-
 class UpdateDepartmentUseCase(Protocol):
     @abstractmethod
     async def update(
         self,
         department_id: uuid.UUID,
-        department_data: dto.UpdateDepartmentDTO,
+        department_data: DTOData[entities.DepartmentEntity],
     ) -> entities.DepartmentEntity:
         raise NotImplementedError
 

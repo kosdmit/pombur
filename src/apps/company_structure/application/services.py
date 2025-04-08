@@ -1,14 +1,16 @@
 import uuid
 from typing import override
 
-from apps.company_structure.application import dto, ports, use_cases
+from litestar.dto import DTOData
+
+from apps.company_structure.application import ports, use_cases
 from apps.company_structure.domain import entities
 
 
 class DepartmentService(  # noqa: WPS215  # reason: explicit define implemented interfaces
     use_cases.GetDepartmentsListUseCase,
-    use_cases.GetDepartmentUseCase,
-    use_cases.CreateDepartmentUseCase,
+    use_cases.GenericGetUseCase[entities.DepartmentEntity],
+    use_cases.GenericCreateUseCase[entities.DepartmentEntity],
     use_cases.UpdateDepartmentUseCase,
     use_cases.DeleteDepartmentUseCase,
 ):
@@ -35,13 +37,9 @@ class DepartmentService(  # noqa: WPS215  # reason: explicit define implemented 
     @override
     async def create(
         self,
-        department_data: dto.NewDepartmentDTO,
+        input_data: DTOData[entities.DepartmentEntity],
     ) -> entities.DepartmentEntity:
-        department_entity = entities.DepartmentEntity(
-            id=uuid.uuid4(),
-            title=department_data.title,
-            parent_id=department_data.parent_id,
-        )
+        department_entity = input_data.create_instance(id=uuid.uuid4())
         await self._save_port.save(department_entity)
         return department_entity
 
@@ -49,13 +47,12 @@ class DepartmentService(  # noqa: WPS215  # reason: explicit define implemented 
     async def update(
         self,
         department_id: uuid.UUID,
-        department_data: dto.UpdateDepartmentDTO,
+        department_data: DTOData[entities.DepartmentEntity],
     ) -> entities.DepartmentEntity:
-        department_entity = await self._fetch_one_port.fetch_one(department_id)
-        department_entity.title = department_data.title
-        department_entity.parent_id = department_data.parent_id
-        await self._save_port.save(department_entity)
-        return department_entity
+        department_entity_to_update = await self._fetch_one_port.fetch_one(department_id)
+        updated_department_entity = department_data.update_instance(department_entity_to_update)
+        await self._save_port.save(updated_department_entity)
+        return updated_department_entity
 
     @override
     async def delete(self, department_id: uuid.UUID) -> None:
@@ -64,7 +61,7 @@ class DepartmentService(  # noqa: WPS215  # reason: explicit define implemented 
 
 class EmployeeService(
     use_cases.GenericGetListUseCase[entities.EmployeeEntity],
-    use_cases.GenericCreateUseCase[dto.NewEmployeeDTO, entities.EmployeeEntity],
+    use_cases.GenericCreateUseCase[entities.EmployeeEntity],
 ):
     def __init__(
         self,
@@ -79,12 +76,9 @@ class EmployeeService(
         return await self._fetch_all_employees_port.fetch_all()
 
     @override
-    async def create(self, entity_data: dto.NewEmployeeDTO) -> entities.EmployeeEntity:
-        employee_entity = entities.EmployeeEntity(
-            id=uuid.uuid4(),
-            name=entity_data.name,
-            manager_id=entity_data.manager_id,
-            department_id=entity_data.department_id,
-        )
+    async def create(
+        self, entity_data: DTOData[entities.EmployeeEntity]
+    ) -> entities.EmployeeEntity:
+        employee_entity = entity_data.create_instance(id=uuid.uuid4())
         await self._save_port.save(employee_entity)
         return employee_entity
