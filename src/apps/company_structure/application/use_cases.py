@@ -1,9 +1,22 @@
 import uuid
 from abc import abstractmethod
-from typing import Protocol
+from typing import Protocol, TypeVar
 
 from apps.company_structure.application import dto
 from apps.company_structure.domain import entities
+
+EntityT = TypeVar("EntityT")
+DtoT = TypeVar("DtoT")
+
+
+class GenericGetListUseCase[EntityT](Protocol):
+    async def list(self) -> list[EntityT]:
+        raise NotImplementedError
+
+
+class GenericCreateUseCase[DtoT, EntityT](Protocol):
+    async def create(self, input_data: DtoT) -> EntityT:
+        raise NotImplementedError
 
 
 class GetDepartmentsListUseCase(Protocol):

@@ -45,9 +45,9 @@ def _convert_entity_to_orm_department(
 
 class DepartmentRepository(  # noqa: WPS215  # reason: explicit define implemented interfaces
     ports.FetchAllDepartmentsPort,
-    ports.FetchOneDepartmentPort,
-    ports.SaveDepartmentPort,
-    ports.DeleteDepartmentPort,
+    ports.GenericFetchOnePort[entities.DepartmentEntity],
+    ports.GenericSavePort[entities.DepartmentEntity],
+    ports.GenericDeletePort[entities.DepartmentEntity],
 ):
     def __init__(
         self,
@@ -59,14 +59,14 @@ class DepartmentRepository(  # noqa: WPS215  # reason: explicit define implement
 
     @override
     async def fetch_all(self) -> list[entities.DepartmentEntity | entities.RootDepartmentEntity]:
-        orm_departments = await self._department_gateway.fetch_all()
+        orm_departments = await self._department_gateway.list()
         return [
             _convert_orm_department_to_entity(orm_department) for orm_department in orm_departments
         ]
 
     @override
     async def fetch_one(self, department_id: uuid.UUID) -> entities.DepartmentEntity:
-        orm_department = await self._department_gateway.fetch_one(obj_id=department_id)
+        orm_department = await self._department_gateway.get_one(id=department_id)
         department_entity = _convert_orm_department_to_entity(orm_department)
         if isinstance(department_entity, entities.RootDepartmentEntity):
             raise GottenWrongDepartmentSubclassError(
@@ -87,10 +87,47 @@ class DepartmentRepository(  # noqa: WPS215  # reason: explicit define implement
 
     @override
     async def save(self, department: entities.DepartmentEntity) -> None:
-        await self._department_gateway.save(orm_obj=_convert_entity_to_orm_department(department))
+        await self._department_gateway.upsert(_convert_entity_to_orm_department(department))
         await self._db_session.commit()
 
     @override
     async def delete(self, department_id: uuid.UUID) -> None:
-        await self._department_gateway.delete(obj_id=department_id)
+        await self._department_gateway.delete(department_id)
         await self._db_session.commit()
+
+
+def _convert_orm_employee_to_entity(
+    orm_employee: models.Employee,
+) -> entities.EmployeeEntity:
+    return entities.EmployeeEntity(
+        id=orm_employee.id,
+        name=orm_employee.name,
+        manager_id=orm_employee.manager_id,
+        department_id=orm_employee.department_id,
+    )
+
+
+def _convert_entity_to_orm_employee(entity: entities.EmployeeEntity) -> models.Employee:
+    return models.Employee(
+        id=entity.id,
+        name=entity.name,
+        manager_id=entity.manager_id,
+        department_id=entity.department_id,
+    )
+
+
+class EmployeeRepository(
+    ports.GenericFetchAllPort[entities.EmployeeEntity],
+    ports.GenericSavePort[entities.EmployeeEntity],
+):
+    def __init__(self, employee_gateway: gateways.EmployeeGateway) -> None:
+        self._employee_gateway = employee_gateway
+
+    @override
+    async def fetch_all(self) -> list[entities.EmployeeEntity]:
+        orm_objects = await self._employee_gateway.list()
+        return [_convert_orm_employee_to_entity(orm_object) for orm_object in orm_objects]
+
+    @override
+    async def save(self, employee: entities.EmployeeEntity) -> None:
+        await self._employee_gateway.upsert(_convert_entity_to_orm_employee(employee))

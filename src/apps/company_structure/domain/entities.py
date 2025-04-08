@@ -24,3 +24,11 @@ class RootDepartmentEntity(_GenericDepartmentEntity[None]):
 @dataclass(slots=True)
 class DepartmentEntity(_GenericDepartmentEntity[UUID]):
     """Domain entity representing department. It is a node in the department tree."""
+
+
+@dataclass(slots=True)
+class EmployeeEntity:
+    id: UUID
+    name: str
+    manager_id: UUID | None
+    department_id: UUID

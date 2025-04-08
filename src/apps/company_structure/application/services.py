@@ -15,9 +15,9 @@ class DepartmentService(  # noqa: WPS215  # reason: explicit define implemented 
     def __init__(
         self,
         fetch_all_port: ports.FetchAllDepartmentsPort,
-        fetch_one_port: ports.FetchOneDepartmentPort,
-        save_port: ports.SaveDepartmentPort,
-        delete_port: ports.DeleteDepartmentPort,
+        fetch_one_port: ports.GenericFetchOnePort[entities.DepartmentEntity],
+        save_port: ports.GenericSavePort[entities.DepartmentEntity],
+        delete_port: ports.GenericDeletePort[entities.DepartmentEntity],
     ) -> None:
         self._fetch_all_port = fetch_all_port
         self._fetch_one_port = fetch_one_port
@@ -60,3 +60,31 @@ class DepartmentService(  # noqa: WPS215  # reason: explicit define implemented 
     @override
     async def delete(self, department_id: uuid.UUID) -> None:
         await self._delete_port.delete(department_id)
+
+
+class EmployeeService(
+    use_cases.GenericGetListUseCase[entities.EmployeeEntity],
+    use_cases.GenericCreateUseCase[dto.NewEmployeeDTO, entities.EmployeeEntity],
+):
+    def __init__(
+        self,
+        fetch_all_employees_port: ports.GenericFetchAllPort[entities.EmployeeEntity],
+        save_port: ports.GenericSavePort[entities.EmployeeEntity],
+    ) -> None:
+        self._fetch_all_employees_port = fetch_all_employees_port
+        self._save_port = save_port
+
+    @override
+    async def list(self) -> list[entities.EmployeeEntity]:
+        return await self._fetch_all_employees_port.fetch_all()
+
+    @override
+    async def create(self, entity_data: dto.NewEmployeeDTO) -> entities.EmployeeEntity:
+        employee_entity = entities.EmployeeEntity(
+            id=uuid.uuid4(),
+            name=entity_data.name,
+            manager_id=entity_data.manager_id,
+            department_id=entity_data.department_id,
+        )
+        await self._save_port.save(employee_entity)
+        return employee_entity

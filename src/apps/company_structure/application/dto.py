@@ -12,3 +12,10 @@ class NewDepartmentDTO:
 class UpdateDepartmentDTO:
     title: str
     parent_id: UUID
+
+
+@dataclass(slots=True)
+class NewEmployeeDTO:
+    name: str
+    manager_id: UUID | None
+    department_id: UUID

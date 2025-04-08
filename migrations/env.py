@@ -9,7 +9,6 @@ from sqlalchemy.ext.asyncio import async_engine_from_config
 
 from alembic import context
 
-from src.apps.company_structure.infrastructure.models import Base
 
 # Set the event loop policy for Windows
 if sys.platform == "win32":
@@ -26,9 +25,14 @@ if config.config_file_name is not None:
 
 # add your model's MetaData object here
 # for 'autogenerate' support
-# from myapp import mymodel
-# target_metadata = mymodel.Base.metadata
-target_metadata = Base.metadata
+from src.apps.company_structure.infrastructure.models import Base
+from litestar.plugins.sqlalchemy import base
+
+target_metadata = [
+    Base.metadata,
+    # base.AdvancedDeclarativeBase.metadata,
+]
+
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:

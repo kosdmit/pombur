@@ -9,11 +9,16 @@ from litestar.openapi.plugins import SwaggerRenderPlugin
 
 from apps.company_structure.controllers.router import company_structure_router
 from apps.company_structure.infrastructure.configs import AppConfig
-from apps.company_structure.ioc import AppProvider, InfrastructureProvider
+from apps.company_structure.ioc import (
+    AppProvider,
+    InfrastructureProvider,
+    LitestarRepositoryProvider,
+)
 
 config = AppConfig()
 container = make_async_container(
     InfrastructureProvider(),
+    LitestarRepositoryProvider(),
     AppProvider(),
     litestar_integration.LitestarProvider(),
     context={AppConfig: config},

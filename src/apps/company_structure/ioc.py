@@ -1,4 +1,4 @@
-from collections.abc import AsyncIterable
+from collections.abc import AsyncIterable, AsyncIterator
 
 import dishka as di
 from dishka import Provider, Scope, WithParents, provide, provide_all
@@ -26,17 +26,39 @@ class InfrastructureProvider(Provider):
             yield session
 
 
+class LitestarRepositoryProvider(Provider):
+    @provide(scope=Scope.REQUEST)
+    async def department_repository(
+        self, db_session: AsyncSession
+    ) -> AsyncIterator[gateways.DepartmentGateway]:
+        try:
+            yield gateways.DepartmentGateway(session=db_session)
+        except Exception:  # noqa: BLE001  # reason: catch-all
+            await db_session.rollback()
+        else:
+            await db_session.commit()
+
+    @provide(scope=Scope.REQUEST)
+    async def employee_repository(
+        self, db_session: AsyncSession
+    ) -> AsyncIterator[gateways.EmployeeGateway]:
+        try:
+            yield gateways.EmployeeGateway(session=db_session)
+        except Exception:  # noqa: BLE001  # reason: catch-all
+            await db_session.rollback()
+        else:
+            await db_session.commit()
+
+
 class AppProvider(Provider):
     scope: di.BaseScope | None = Scope.REQUEST
 
     services = provide_all(
         WithParents[services.DepartmentService],  # type: ignore[misc]
+        WithParents[services.EmployeeService],  # type: ignore[misc]
     )
 
     repositories = provide_all(
         WithParents[repository.DepartmentRepository],  # type: ignore[misc]
-    )
-
-    gateways = provide_all(
-        WithParents[gateways.DepartmentGateway],  # type: ignore[misc]
+        WithParents[repository.EmployeeRepository],  # type: ignore[misc]
     )
