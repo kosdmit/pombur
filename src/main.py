@@ -4,11 +4,13 @@ from contextlib import asynccontextmanager
 from dishka import make_async_container
 from dishka.integrations import litestar as litestar_integration
 from litestar import Litestar
+from litestar.contrib.sqlalchemy.plugins import SQLAlchemyAsyncConfig, SQLAlchemyInitPlugin
 from litestar.openapi import OpenAPIConfig
 from litestar.openapi.plugins import SwaggerRenderPlugin
 
 from apps.company_structure.controllers.router import company_structure_router
 from apps.company_structure.infrastructure.configs import AppConfig
+from apps.company_structure.infrastructure.models import Base
 from apps.company_structure.ioc import (
     AppProvider,
     InfrastructureProvider,
@@ -21,7 +23,6 @@ container = make_async_container(
     LitestarRepositoryProvider(),
     AppProvider(),
     litestar_integration.LitestarProvider(),
-    context={AppConfig: config},
 )
 
 
@@ -29,6 +30,13 @@ container = make_async_container(
 async def app_lifespan(app: Litestar) -> AsyncGenerator[None]:
     yield
     await app.state.dishka_container.close()
+
+
+litestar_db_config = SQLAlchemyAsyncConfig(
+    connection_string=config.postgres.uri,
+    metadata=Base.metadata,
+    create_all=True,
+)
 
 
 def get_app() -> Litestar:
@@ -41,6 +49,7 @@ def get_app() -> Litestar:
             path="/docs",
         ),
         lifespan=[app_lifespan],
+        plugins=[SQLAlchemyInitPlugin(litestar_db_config)],
     )
 
     litestar_integration.setup_dishka(container, litestar_app)

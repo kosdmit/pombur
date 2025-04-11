@@ -120,8 +120,13 @@ class EmployeeRepository(
     ports.GenericFetchAllPort[entities.EmployeeEntity],
     ports.GenericSavePort[entities.EmployeeEntity],
 ):
-    def __init__(self, employee_gateway: gateways.EmployeeGateway) -> None:
+    def __init__(
+        self,
+        employee_gateway: gateways.EmployeeGateway,
+        db_session: AsyncSession,
+    ) -> None:
         self._employee_gateway = employee_gateway
+        self._db_session = db_session
 
     @override
     async def fetch_all(self) -> list[entities.EmployeeEntity]:
@@ -131,3 +136,4 @@ class EmployeeRepository(
     @override
     async def save(self, employee: entities.EmployeeEntity) -> None:
         await self._employee_gateway.upsert(_convert_entity_to_orm_employee(employee))
+        await self._db_session.commit()
