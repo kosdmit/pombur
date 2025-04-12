@@ -2,18 +2,25 @@ import uuid
 
 from dishka import FromDishka
 from dishka.integrations.litestar import inject
-from litestar import Controller, delete, get, post, put
-from litestar.dto import DTOData
+from litestar import Controller, delete, get, patch, post, put
+from litestar.dto import AbstractDTO, DTOData
+from litestar.types.empty import EmptyType
 
 from apps.company_structure.application import use_cases
-from apps.company_structure.controllers import dto
+from apps.company_structure.controllers import dtos
 from apps.company_structure.domain import entities
 
 
 class DepartmentHTTPController(Controller):
     path = "/departments"
+    id_path_param = "/{department_id:uuid}"
 
-    @get(return_dto=dto.ReadDepartmentDTO)
+    dto: type[AbstractDTO[entities.DepartmentEntity]] | None | EmptyType = dtos.WriteDepartmentDTO
+    return_dto: type[AbstractDTO[entities.DepartmentEntity]] | None | EmptyType = (
+        dtos.ReadDepartmentDTO
+    )
+
+    @get()
     @inject
     async def list(
         self,
@@ -21,7 +28,7 @@ class DepartmentHTTPController(Controller):
     ) -> list[entities.DepartmentEntity | entities.RootDepartmentEntity]:
         return await use_case.list()
 
-    @get(path="/{department_id:uuid}", return_dto=dto.ReadDepartmentDTO)
+    @get(path=id_path_param)
     @inject
     async def get(
         self,
@@ -30,7 +37,7 @@ class DepartmentHTTPController(Controller):
     ) -> entities.DepartmentEntity:
         return await use_case.get(department_id)
 
-    @post(dto=dto.WriteDepartmentDTO, return_dto=dto.ReadDepartmentDTO)
+    @post()
     @inject
     async def create(
         self,
@@ -39,7 +46,7 @@ class DepartmentHTTPController(Controller):
     ) -> entities.DepartmentEntity:
         return await use_case.create(data)
 
-    @put("/{department_id:uuid}", dto=dto.WriteDepartmentDTO, return_dto=dto.ReadDepartmentDTO)
+    @put(path=id_path_param)
     @inject
     async def update(
         self,
@@ -49,7 +56,17 @@ class DepartmentHTTPController(Controller):
     ) -> entities.DepartmentEntity:
         return await use_case.update(department_id, data)
 
-    @delete("/{department_id:uuid}")
+    @patch(path=id_path_param, dto=dtos.PatchDepartmentDTO)
+    @inject
+    async def partial_update(
+        self,
+        use_case: FromDishka[use_cases.UpdateDepartmentUseCase],
+        department_id: uuid.UUID,
+        data: DTOData[entities.DepartmentEntity],
+    ) -> entities.DepartmentEntity:
+        return await use_case.update(department_id, data)
+
+    @delete(path=id_path_param)
     @inject
     async def delete(
         self,
@@ -61,8 +78,12 @@ class DepartmentHTTPController(Controller):
 
 class EmployeeHTTPController(Controller):
     path = "/employees"
+    id_path_param = "/{employee_id:uuid}"
 
-    @get(return_dto=dto.ReadDepartmentDTO)
+    dto: type[AbstractDTO[entities.EmployeeEntity]] | None | EmptyType = dtos.WriteEmployeeDTO
+    return_dto: type[AbstractDTO[entities.EmployeeEntity]] | None | EmptyType = dtos.ReadEmployeeDTO
+
+    @get()
     @inject
     async def list(
         self,
@@ -70,7 +91,7 @@ class EmployeeHTTPController(Controller):
     ) -> list[entities.EmployeeEntity]:
         return await use_case.list()
 
-    @post(dto=dto.WriteEmployeeDTO, return_dto=dto.ReadEmployeeDTO)
+    @post()
     @inject
     async def create(
         self,

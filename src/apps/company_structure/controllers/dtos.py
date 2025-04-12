@@ -14,6 +14,10 @@ class WriteDepartmentDTO(DataclassDTO[entities.DepartmentEntity]):
     config = DTOConfig(exclude={"id"})
 
 
+class PatchDepartmentDTO(DataclassDTO[entities.DepartmentEntity]):
+    config = DTOConfig(exclude={"id"}, partial=True)
+
+
 class ReadEmployeeDTO(DataclassDTO[entities.EmployeeEntity]):
     """DTO for employee entity.
 

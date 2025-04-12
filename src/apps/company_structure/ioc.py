@@ -17,13 +17,7 @@ class InfrastructureProvider(Provider):
             scope=request.scope,
         )
         async with db_session.begin():
-            try:
-                yield db_session
-            except Exception:
-                db_session.rollback()
-                raise
-            else:
-                await db_session.commit()
+            yield db_session
 
 
 class LitestarRepositoryProvider(Provider):

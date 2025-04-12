@@ -88,10 +88,12 @@ class DepartmentRepository(  # noqa: WPS215  # reason: explicit define implement
     @override
     async def save(self, department: entities.DepartmentEntity) -> None:
         await self._department_gateway.upsert(_convert_entity_to_orm_department(department))
+        await self._db_session.commit()
 
     @override
     async def delete(self, department_id: uuid.UUID) -> None:
         await self._department_gateway.delete(department_id)
+        await self._db_session.commit()
 
 
 def _convert_orm_employee_to_entity(
@@ -134,3 +136,4 @@ class EmployeeRepository(
     @override
     async def save(self, employee: entities.EmployeeEntity) -> None:
         await self._employee_gateway.upsert(_convert_entity_to_orm_employee(employee))
+        await self._db_session.commit()
