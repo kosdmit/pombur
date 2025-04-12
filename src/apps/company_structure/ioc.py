@@ -1,5 +1,4 @@
 from collections.abc import AsyncIterable, AsyncIterator
-from typing import Any
 
 import dishka as di
 import litestar
@@ -12,15 +11,19 @@ from apps.company_structure.infrastructure import gateways, repository
 
 class InfrastructureProvider(Provider):
     @provide(scope=Scope.REQUEST)
-    async def transaction(
-        self, request: litestar.Request[Any, Any, Any]
-    ) -> AsyncIterable[AsyncSession]:
+    async def transaction(self, request: litestar.Request) -> AsyncIterable[AsyncSession]:  # type: ignore[type-arg]  # reason: to correctly build dependencies tree
         db_session = await request.app.dependencies["db_session"](
             state=request.app.state,
             scope=request.scope,
         )
         async with db_session.begin():
-            yield db_session
+            try:
+                yield db_session
+            except Exception:
+                db_session.rollback()
+                raise
+            else:
+                await db_session.commit()
 
 
 class LitestarRepositoryProvider(Provider):
