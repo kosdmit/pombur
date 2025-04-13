@@ -1,7 +1,9 @@
+import builtins
 import uuid
 from typing import override
 
 from litestar.dto import DTOData
+from litestar.repository import filters
 
 from apps.company_structure.application import ports, use_cases
 from apps.company_structure.domain import entities
@@ -16,8 +18,8 @@ class DepartmentService(  # noqa: WPS215  # reason: explicit define implemented 
 ):
     def __init__(
         self,
-        fetch_all_port: ports.FetchAllDepartmentsPort,
-        fetch_one_port: ports.GenericFetchOnePort[entities.DepartmentEntity],
+        fetch_all_port: ports.DepartmentsFetchPort,
+        fetch_one_port: ports.GenericFetchPort[entities.DepartmentEntity],
         save_port: ports.GenericSavePort[entities.DepartmentEntity],
         delete_port: ports.GenericDeletePort[entities.DepartmentEntity],
     ) -> None:
@@ -62,10 +64,11 @@ class DepartmentService(  # noqa: WPS215  # reason: explicit define implemented 
 class EmployeeService(
     use_cases.GenericGetListUseCase[entities.EmployeeEntity],
     use_cases.GenericCreateUseCase[entities.EmployeeEntity],
+    use_cases.GenericGetPaginatedListUseCase[entities.EmployeeEntity],
 ):
     def __init__(
         self,
-        fetch_all_employees_port: ports.GenericFetchAllPort[entities.EmployeeEntity],
+        fetch_all_employees_port: ports.GenericFetchPort[entities.EmployeeEntity],
         save_port: ports.GenericSavePort[entities.EmployeeEntity],
     ) -> None:
         self._fetch_all_employees_port = fetch_all_employees_port
@@ -74,6 +77,13 @@ class EmployeeService(
     @override
     async def list(self) -> list[entities.EmployeeEntity]:
         return await self._fetch_all_employees_port.fetch_all()
+
+    @override
+    async def paginated_list(
+        self,
+        limit_offset: filters.LimitOffset,
+    ) -> tuple[builtins.list[entities.EmployeeEntity], int]:
+        return await self._fetch_all_employees_port.fetch_page(limit_offset)
 
     @override
     async def create(

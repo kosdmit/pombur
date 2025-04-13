@@ -1,14 +1,22 @@
 import uuid
+from collections.abc import Sequence
+from enum import Enum
 
-from dishka import FromDishka
-from dishka.integrations.litestar import inject
+from advanced_alchemy.service import OffsetPagination
+from dishka.integrations.litestar import FromDishka, inject
 from litestar import Controller, delete, get, patch, post, put
 from litestar.dto import AbstractDTO, DTOData
+from litestar.repository import filters
 from litestar.types.empty import EmptyType
 
 from apps.company_structure.application import use_cases
 from apps.company_structure.controllers import dtos
 from apps.company_structure.domain import entities
+
+
+class Tags(Enum):
+    departments = "Departments"
+    employees = "Employees"
 
 
 class DepartmentHTTPController(Controller):
@@ -19,6 +27,8 @@ class DepartmentHTTPController(Controller):
     return_dto: type[AbstractDTO[entities.DepartmentEntity]] | None | EmptyType = (
         dtos.ReadDepartmentDTO
     )
+
+    tags: Sequence[str] | None = [Tags.departments.value]
 
     @get()
     @inject
@@ -83,13 +93,22 @@ class EmployeeHTTPController(Controller):
     dto: type[AbstractDTO[entities.EmployeeEntity]] | None | EmptyType = dtos.WriteEmployeeDTO
     return_dto: type[AbstractDTO[entities.EmployeeEntity]] | None | EmptyType = dtos.ReadEmployeeDTO
 
+    tags: Sequence[str] | None = [Tags.employees.value]
+
     @get()
     @inject
     async def list(
         self,
-        use_case: FromDishka[use_cases.GenericGetListUseCase[entities.EmployeeEntity]],
-    ) -> list[entities.EmployeeEntity]:
-        return await use_case.list()
+        use_case: FromDishka[use_cases.GenericGetPaginatedListUseCase[entities.EmployeeEntity]],
+        limit_offset: filters.LimitOffset,
+    ) -> OffsetPagination[entities.EmployeeEntity]:
+        results, total = await use_case.paginated_list(limit_offset)
+        return OffsetPagination(
+            items=results,
+            total=total,
+            limit=limit_offset.limit,
+            offset=limit_offset.offset,
+        )
 
     @post()
     @inject

@@ -3,6 +3,7 @@ from abc import abstractmethod
 from typing import Protocol, TypeVar
 
 from litestar.dto import DTOData
+from litestar.repository import filters
 
 from apps.company_structure.domain import entities
 
@@ -11,6 +12,11 @@ EntityT = TypeVar("EntityT")
 
 class GenericGetListUseCase[EntityT](Protocol):
     async def list(self) -> list[EntityT]:
+        raise NotImplementedError
+
+
+class GenericGetPaginatedListUseCase[EntityT](Protocol):
+    async def paginated_list(self, limit_offset: filters.LimitOffset) -> tuple[list[EntityT], int]:
         raise NotImplementedError
 
 

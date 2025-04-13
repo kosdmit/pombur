@@ -1,6 +1,7 @@
 import uuid
 from typing import override
 
+from litestar.repository import filters
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from apps.company_structure.application import ports
@@ -44,8 +45,7 @@ def _convert_entity_to_orm_department(
 
 
 class DepartmentRepository(  # noqa: WPS215  # reason: explicit define implemented interfaces
-    ports.FetchAllDepartmentsPort,
-    ports.GenericFetchOnePort[entities.DepartmentEntity],
+    ports.DepartmentsFetchPort,
     ports.GenericSavePort[entities.DepartmentEntity],
     ports.GenericDeletePort[entities.DepartmentEntity],
 ):
@@ -117,7 +117,7 @@ def _convert_entity_to_orm_employee(entity: entities.EmployeeEntity) -> models.E
 
 
 class EmployeeRepository(
-    ports.GenericFetchAllPort[entities.EmployeeEntity],
+    ports.GenericFetchPort[entities.EmployeeEntity],
     ports.GenericSavePort[entities.EmployeeEntity],
 ):
     def __init__(
@@ -129,9 +129,22 @@ class EmployeeRepository(
         self._db_session = db_session
 
     @override
+    async def fetch_one(self, employee_id: uuid.UUID) -> entities.EmployeeEntity:
+        orm_employee = await self._employee_gateway.get_one(id=employee_id)
+        return _convert_orm_employee_to_entity(orm_employee)
+
+    @override
     async def fetch_all(self) -> list[entities.EmployeeEntity]:
         orm_objects = await self._employee_gateway.list()
         return [_convert_orm_employee_to_entity(orm_object) for orm_object in orm_objects]
+
+    @override
+    async def fetch_page(
+        self,
+        limit_offset: filters.LimitOffset,
+    ) -> tuple[list[entities.EmployeeEntity], int]:
+        orm_objects, total = await self._employee_gateway.list_and_count(limit_offset)
+        return [_convert_orm_employee_to_entity(orm_object) for orm_object in orm_objects], total
 
     @override
     async def save(self, employee: entities.EmployeeEntity) -> None:

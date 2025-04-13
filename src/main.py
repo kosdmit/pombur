@@ -8,20 +8,19 @@ from litestar.contrib.sqlalchemy.plugins import SQLAlchemyAsyncConfig, SQLAlchem
 from litestar.openapi import OpenAPIConfig
 from litestar.openapi.plugins import SwaggerRenderPlugin
 
-from apps.company_structure.controllers.router import company_structure_router
-from apps.company_structure.infrastructure.configs import AppConfig
-from apps.company_structure.infrastructure.models import Base
-from apps.company_structure.ioc import (
-    AppProvider,
-    InfrastructureProvider,
-    LitestarRepositoryProvider,
+import litestar_utils
+from apps.company_structure import (
+    CompanyStructureAppConfig,
+    CompanyStructureBase,
+    company_structure_router,
+    ioc,
 )
 
-config = AppConfig()
+config = CompanyStructureAppConfig()
 container = make_async_container(
-    InfrastructureProvider(),
-    LitestarRepositoryProvider(),
-    AppProvider(),
+    ioc.InfrastructureProvider(),
+    ioc.LitestarRepositoryProvider(),
+    ioc.AppProvider(),
     litestar_integration.LitestarProvider(),
 )
 
@@ -34,7 +33,7 @@ async def app_lifespan(app: Litestar) -> AsyncGenerator[None]:
 
 litestar_db_config = SQLAlchemyAsyncConfig(
     connection_string=config.postgres.uri,
-    metadata=Base.metadata,
+    metadata=CompanyStructureBase.metadata,
     create_all=True,
 )
 
@@ -50,6 +49,7 @@ def get_app() -> Litestar:
         ),
         lifespan=[app_lifespan],
         plugins=[SQLAlchemyInitPlugin(litestar_db_config)],
+        dependencies={"limit_offset": litestar_utils.provide_limit_offset_pagination},
     )
 
     litestar_integration.setup_dishka(container, litestar_app)
