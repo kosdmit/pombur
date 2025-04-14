@@ -24,6 +24,8 @@ class ReadEmployeeDTO(DataclassDTO[entities.EmployeeEntity]):
     Converts entities.EmployeeEntity to serialization ready data.
     """
 
+    config = DTOConfig(max_nested_depth=1)
+
 
 class WriteEmployeeDTO(DataclassDTO[entities.EmployeeEntity]):
-    config = DTOConfig(exclude={"id"})
+    config = DTOConfig(exclude={"id"}, max_nested_depth=0)

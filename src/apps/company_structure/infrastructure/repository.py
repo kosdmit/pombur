@@ -102,22 +102,15 @@ def _convert_orm_employee_to_entity(
     return entities.EmployeeEntity(
         id=orm_employee.id,
         name=orm_employee.name,
-        manager_id=orm_employee.manager_id,
+        manager=(
+            _convert_orm_employee_to_entity(orm_employee.manager) if orm_employee.manager else None
+        ),
         department_id=orm_employee.department_id,
     )
 
 
-def _convert_entity_to_orm_employee(entity: entities.EmployeeEntity) -> models.Employee:
-    return models.Employee(
-        id=entity.id,
-        name=entity.name,
-        manager_id=entity.manager_id,
-        department_id=entity.department_id,
-    )
-
-
 class EmployeeRepository(
-    ports.GenericFetchPort[entities.EmployeeEntity],
+    ports.GenericFetchPort[str, entities.EmployeeEntity],
     ports.GenericSavePort[entities.EmployeeEntity],
 ):
     def __init__(
@@ -129,8 +122,8 @@ class EmployeeRepository(
         self._db_session = db_session
 
     @override
-    async def fetch_one(self, employee_id: uuid.UUID) -> entities.EmployeeEntity:
-        orm_employee = await self._employee_gateway.get_one(id=employee_id)
+    async def fetch_one(self, slug: str) -> entities.EmployeeEntity:
+        orm_employee = await self._employee_gateway.get_one(slug=slug)
         return _convert_orm_employee_to_entity(orm_employee)
 
     @override
@@ -148,5 +141,23 @@ class EmployeeRepository(
 
     @override
     async def save(self, employee: entities.EmployeeEntity) -> None:
-        await self._employee_gateway.upsert(_convert_entity_to_orm_employee(employee))
+        await self._employee_gateway.upsert(await self._convert_entity_to_orm_employee(employee))
         await self._db_session.commit()
+
+    async def _convert_entity_to_orm_employee(
+        self,
+        entity: entities.EmployeeEntity,
+    ) -> models.Employee:
+        existent_orm_object = await self._employee_gateway.get_one_or_none(id=entity.id)
+        if existent_orm_object is None:
+            slug = await self._employee_gateway.get_available_slug(entity.name)
+        else:
+            slug = existent_orm_object.slug
+
+        return models.Employee(
+            id=entity.id,
+            slug=slug,
+            name=entity.name,
+            manager=entity.manager,
+            department_id=entity.department_id,
+        )

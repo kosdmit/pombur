@@ -42,7 +42,7 @@ class DepartmentHTTPController(Controller):
     @inject
     async def get(
         self,
-        use_case: FromDishka[use_cases.GenericGetUseCase[entities.DepartmentEntity]],
+        use_case: FromDishka[use_cases.GenericGetUseCase[uuid.UUID, entities.DepartmentEntity]],
         department_id: uuid.UUID,
     ) -> entities.DepartmentEntity:
         return await use_case.get(department_id)
@@ -88,7 +88,7 @@ class DepartmentHTTPController(Controller):
 
 class EmployeeHTTPController(Controller):
     path = "/employees"
-    id_path_param = "/{employee_id:uuid}"
+    slug_path_param = "/{slug:str}"
 
     dto: type[AbstractDTO[entities.EmployeeEntity]] | None | EmptyType = dtos.WriteEmployeeDTO
     return_dto: type[AbstractDTO[entities.EmployeeEntity]] | None | EmptyType = dtos.ReadEmployeeDTO
@@ -109,6 +109,15 @@ class EmployeeHTTPController(Controller):
             limit=limit_offset.limit,
             offset=limit_offset.offset,
         )
+
+    @get(path=slug_path_param)
+    @inject
+    async def get(
+        self,
+        use_case: FromDishka[use_cases.GenericGetUseCase[str, entities.EmployeeEntity]],
+        slug: str,
+    ) -> entities.EmployeeEntity:
+        return await use_case.get(slug)
 
     @post()
     @inject

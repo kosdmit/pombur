@@ -25,7 +25,7 @@ if config.config_file_name is not None:
 
 # add your model's MetaData object here
 # for 'autogenerate' support
-from src.apps.company_structure.infrastructure.models import Base
+from apps.company_structure.infrastructure.models import Base
 from litestar.plugins.sqlalchemy import base
 
 target_metadata = [

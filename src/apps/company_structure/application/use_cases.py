@@ -8,6 +8,7 @@ from litestar.repository import filters
 from apps.company_structure.domain import entities
 
 EntityT = TypeVar("EntityT")
+IdentifierT = TypeVar("IdentifierT")
 
 
 class GenericGetListUseCase[EntityT](Protocol):
@@ -20,8 +21,8 @@ class GenericGetPaginatedListUseCase[EntityT](Protocol):
         raise NotImplementedError
 
 
-class GenericGetUseCase[EntityT](Protocol):
-    async def get(self, entity_id: uuid.UUID) -> EntityT:
+class GenericGetUseCase[IdentifierT, EntityT](Protocol):
+    async def get(self, identifier: IdentifierT, /) -> EntityT:
         raise NotImplementedError
 
 

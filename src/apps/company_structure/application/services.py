@@ -11,30 +11,28 @@ from apps.company_structure.domain import entities
 
 class DepartmentService(  # noqa: WPS215  # reason: explicit define implemented interfaces
     use_cases.GetDepartmentsListUseCase,
-    use_cases.GenericGetUseCase[entities.DepartmentEntity],
+    use_cases.GenericGetUseCase[uuid.UUID, entities.DepartmentEntity],
     use_cases.GenericCreateUseCase[entities.DepartmentEntity],
     use_cases.UpdateDepartmentUseCase,
     use_cases.DeleteDepartmentUseCase,
 ):
     def __init__(
         self,
-        fetch_all_port: ports.DepartmentsFetchPort,
-        fetch_one_port: ports.GenericFetchPort[entities.DepartmentEntity],
+        fetch_port: ports.DepartmentsFetchPort,
         save_port: ports.GenericSavePort[entities.DepartmentEntity],
         delete_port: ports.GenericDeletePort[entities.DepartmentEntity],
     ) -> None:
-        self._fetch_all_port = fetch_all_port
-        self._fetch_one_port = fetch_one_port
+        self._fetch_port = fetch_port
         self._save_port = save_port
         self._delete_port = delete_port
 
     @override
     async def list(self) -> list[entities.DepartmentEntity | entities.RootDepartmentEntity]:
-        return await self._fetch_all_port.fetch_all()
+        return await self._fetch_port.fetch_all()
 
     @override
     async def get(self, department_id: uuid.UUID) -> entities.DepartmentEntity:
-        return await self._fetch_one_port.fetch_one(department_id)
+        return await self._fetch_port.fetch_one(department_id)
 
     @override
     async def create(
@@ -51,7 +49,7 @@ class DepartmentService(  # noqa: WPS215  # reason: explicit define implemented 
         department_id: uuid.UUID,
         department_data: DTOData[entities.DepartmentEntity],
     ) -> entities.DepartmentEntity:
-        department_entity_to_update = await self._fetch_one_port.fetch_one(department_id)
+        department_entity_to_update = await self._fetch_port.fetch_one(department_id)
         updated_department_entity = department_data.update_instance(department_entity_to_update)
         await self._save_port.save(updated_department_entity)
         return updated_department_entity
@@ -61,29 +59,34 @@ class DepartmentService(  # noqa: WPS215  # reason: explicit define implemented 
         await self._delete_port.delete(department_id)
 
 
-class EmployeeService(
+class EmployeeService(  # noqa: WPS215  # reason: explicit define implemented interfaces
+    use_cases.GenericGetUseCase[str, entities.EmployeeEntity],
     use_cases.GenericGetListUseCase[entities.EmployeeEntity],
     use_cases.GenericCreateUseCase[entities.EmployeeEntity],
     use_cases.GenericGetPaginatedListUseCase[entities.EmployeeEntity],
 ):
     def __init__(
         self,
-        fetch_all_employees_port: ports.GenericFetchPort[entities.EmployeeEntity],
+        fetch_port: ports.GenericFetchPort[str, entities.EmployeeEntity],
         save_port: ports.GenericSavePort[entities.EmployeeEntity],
     ) -> None:
-        self._fetch_all_employees_port = fetch_all_employees_port
+        self._fetch_port = fetch_port
         self._save_port = save_port
 
     @override
+    async def get(self, slug: str) -> entities.EmployeeEntity:
+        return await self._fetch_port.fetch_one(slug)
+
+    @override
     async def list(self) -> list[entities.EmployeeEntity]:
-        return await self._fetch_all_employees_port.fetch_all()
+        return await self._fetch_port.fetch_all()
 
     @override
     async def paginated_list(
         self,
         limit_offset: filters.LimitOffset,
     ) -> tuple[builtins.list[entities.EmployeeEntity], int]:
-        return await self._fetch_all_employees_port.fetch_page(limit_offset)
+        return await self._fetch_port.fetch_page(limit_offset)
 
     @override
     async def create(

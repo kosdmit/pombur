@@ -7,11 +7,12 @@ from litestar.repository import filters
 from apps.company_structure.domain import entities
 
 EntityT = TypeVar("EntityT")
+IdentifierT = TypeVar("IdentifierT")
 
 
-class GenericFetchPort[EntityT](Protocol):
+class GenericFetchPort[IdentifierT, EntityT](Protocol):
     @abstractmethod
-    async def fetch_one(self, entity_id: uuid.UUID) -> EntityT:
+    async def fetch_one(self, identifier: IdentifierT, /) -> EntityT:
         raise NotImplementedError
 
     async def fetch_all(self) -> list[EntityT]:

@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Generic, TypeVar
 from uuid import UUID
 
@@ -30,5 +30,6 @@ class DepartmentEntity(_GenericDepartmentEntity[UUID]):
 class EmployeeEntity:
     id: UUID
     name: str
-    manager_id: UUID | None
     department_id: UUID
+
+    manager: "EmployeeEntity | None" = field(default=None)

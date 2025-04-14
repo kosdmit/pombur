@@ -33,5 +33,5 @@ class DepartmentGateway(litestar_repository.SQLAlchemyAsyncRepository[models.Dep
         return query_result.scalars().one()
 
 
-class EmployeeGateway(litestar_repository.SQLAlchemyAsyncRepository[models.Employee]):
+class EmployeeGateway(litestar_repository.SQLAlchemyAsyncSlugRepository[models.Employee]):
     model_type = models.Employee
