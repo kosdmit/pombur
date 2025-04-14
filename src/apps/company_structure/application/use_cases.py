@@ -31,12 +31,6 @@ class GenericCreateUseCase[EntityT](Protocol):
         raise NotImplementedError
 
 
-class GetDepartmentsListUseCase(Protocol):
-    @abstractmethod
-    async def list(self) -> list[entities.DepartmentEntity | entities.RootDepartmentEntity]:
-        raise NotImplementedError
-
-
 class UpdateDepartmentUseCase(Protocol):
     @abstractmethod
     async def update(
@@ -50,4 +44,10 @@ class UpdateDepartmentUseCase(Protocol):
 class DeleteDepartmentUseCase(Protocol):
     @abstractmethod
     async def delete(self, department_id: uuid.UUID) -> None:
+        raise NotImplementedError
+
+
+class GetRootDepartmentUseCase(Protocol):
+    @abstractmethod
+    async def get_root(self) -> entities.RootDepartmentEntity:
         raise NotImplementedError

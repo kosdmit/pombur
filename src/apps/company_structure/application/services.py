@@ -10,8 +10,9 @@ from apps.company_structure.domain import entities
 
 
 class DepartmentService(  # noqa: WPS215  # reason: explicit define implemented interfaces
-    use_cases.GetDepartmentsListUseCase,
+    use_cases.GenericGetListUseCase[entities.DepartmentEntity],
     use_cases.GenericGetUseCase[uuid.UUID, entities.DepartmentEntity],
+    use_cases.GetRootDepartmentUseCase,
     use_cases.GenericCreateUseCase[entities.DepartmentEntity],
     use_cases.UpdateDepartmentUseCase,
     use_cases.DeleteDepartmentUseCase,
@@ -27,12 +28,16 @@ class DepartmentService(  # noqa: WPS215  # reason: explicit define implemented 
         self._delete_port = delete_port
 
     @override
-    async def list(self) -> list[entities.DepartmentEntity | entities.RootDepartmentEntity]:
+    async def list(self) -> list[entities.DepartmentEntity]:
         return await self._fetch_port.fetch_all()
 
     @override
     async def get(self, department_id: uuid.UUID) -> entities.DepartmentEntity:
         return await self._fetch_port.fetch_one(department_id)
+
+    @override
+    async def get_root(self) -> entities.RootDepartmentEntity:
+        return await self._fetch_port.fetch_root()
 
     @override
     async def create(

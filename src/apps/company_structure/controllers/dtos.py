@@ -1,31 +1,31 @@
+from typing import Literal
+
 from litestar.dto import DataclassDTO, DTOConfig
 
 from apps.company_structure.domain import entities
 
+_RENAME_STRATEGY: Literal["camel"] = "camel"
+
 
 class ReadDepartmentDTO(DataclassDTO[entities.DepartmentEntity]):
-    """DTO for department entity.
+    config = DTOConfig(rename_strategy=_RENAME_STRATEGY)
 
-    Converts entities.DepartmentEntity to serialization ready data.
-    """
+
+class ReadRootDepartmentDTO(DataclassDTO[entities.RootDepartmentEntity]):
+    config = DTOConfig(rename_strategy=_RENAME_STRATEGY)
 
 
 class WriteDepartmentDTO(DataclassDTO[entities.DepartmentEntity]):
-    config = DTOConfig(exclude={"id"})
+    config = DTOConfig(exclude={"id"}, rename_strategy=_RENAME_STRATEGY)
 
 
 class PatchDepartmentDTO(DataclassDTO[entities.DepartmentEntity]):
-    config = DTOConfig(exclude={"id"}, partial=True)
+    config = DTOConfig(exclude={"id"}, partial=True, rename_strategy=_RENAME_STRATEGY)
 
 
 class ReadEmployeeDTO(DataclassDTO[entities.EmployeeEntity]):
-    """DTO for employee entity.
-
-    Converts entities.EmployeeEntity to serialization ready data.
-    """
-
-    config = DTOConfig(max_nested_depth=1)
+    config = DTOConfig(max_nested_depth=1, rename_strategy=_RENAME_STRATEGY)
 
 
 class WriteEmployeeDTO(DataclassDTO[entities.EmployeeEntity]):
-    config = DTOConfig(exclude={"id"}, max_nested_depth=0)
+    config = DTOConfig(exclude={"id"}, max_nested_depth=0, rename_strategy=_RENAME_STRATEGY)

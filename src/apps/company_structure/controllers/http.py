@@ -34,9 +34,17 @@ class DepartmentHTTPController(Controller):
     @inject
     async def list(
         self,
-        use_case: FromDishka[use_cases.GetDepartmentsListUseCase],
-    ) -> list[entities.DepartmentEntity | entities.RootDepartmentEntity]:
+        use_case: FromDishka[use_cases.GenericGetListUseCase[entities.DepartmentEntity]],
+    ) -> list[entities.DepartmentEntity]:
         return await use_case.list()
+
+    @get("/root", return_dto=dtos.ReadRootDepartmentDTO)
+    @inject
+    async def get_root(
+        self,
+        use_case: FromDishka[use_cases.GetRootDepartmentUseCase],
+    ) -> entities.RootDepartmentEntity:
+        return await use_case.get_root()
 
     @get(path=id_path_param)
     @inject

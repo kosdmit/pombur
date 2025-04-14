@@ -23,6 +23,7 @@ class GenericFetchPort[IdentifierT, EntityT](Protocol):
 
 
 class GenericSavePort[EntityT](Protocol):
+    @abstractmethod
     async def save(self, entity: EntityT) -> None:
         raise NotImplementedError
 
@@ -39,11 +40,15 @@ class DepartmentsFetchPort(Protocol):
         raise NotImplementedError
 
     @abstractmethod
-    async def fetch_all(self) -> list[entities.DepartmentEntity | entities.RootDepartmentEntity]:
+    async def fetch_all(self) -> list[entities.DepartmentEntity]:
         raise NotImplementedError
 
     async def fetch_page(
         self,
         limit_offset: filters.LimitOffset,
     ) -> tuple[list[entities.DepartmentEntity], int]:
+        raise NotImplementedError
+
+    @abstractmethod
+    async def fetch_root(self) -> entities.RootDepartmentEntity:
         raise NotImplementedError

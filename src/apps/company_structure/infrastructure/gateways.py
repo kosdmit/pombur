@@ -1,3 +1,5 @@
+from typing import Any, override
+
 import sqlalchemy as sa
 from litestar.plugins.sqlalchemy import repository as litestar_repository
 
@@ -20,17 +22,26 @@ class GottenMoreThanOneRootDepartmentError(Exception):
 class DepartmentGateway(litestar_repository.SQLAlchemyAsyncRepository[models.Department]):
     model_type = models.Department
 
+    @override
+    async def list(self, *args: Any, **kwargs: Any) -> list[models.Department]:
+        return await super().list(
+            sa.and_(models.Department.parent_id != None),  # noqa: E711  # reason: alchemy syntax
+            *args,
+            **kwargs,
+        )
+
     async def fetch_root_department(self) -> models.Department:
         query_result = await self.session.execute(
             sa.select(models.Department).where(models.Department.parent_id == None),  # noqa: E711  # reason: alchemy syntax
         )
+        departments = query_result.scalars().all()
 
-        if len(query_result.scalars().all()) > 1:
+        if len(departments) > 1:
             raise GottenMoreThanOneRootDepartmentError
-        if len(query_result.scalars().all()) == 0:
+        if not departments:
             raise RootDepartmentDoesNotExistError
 
-        return query_result.scalars().one()
+        return departments[0]
 
 
 class EmployeeGateway(litestar_repository.SQLAlchemyAsyncSlugRepository[models.Employee]):

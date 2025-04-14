@@ -1,5 +1,5 @@
 import uuid
-from typing import override
+from typing import cast, override
 
 from litestar.repository import filters
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -58,11 +58,17 @@ class DepartmentRepository(  # noqa: WPS215  # reason: explicit define implement
         self._department_gateway = department_gateway
 
     @override
-    async def fetch_all(self) -> list[entities.DepartmentEntity | entities.RootDepartmentEntity]:
+    async def fetch_all(self) -> list[entities.DepartmentEntity]:
         orm_departments = await self._department_gateway.list()
-        return [
+        departments = [
             _convert_orm_department_to_entity(orm_department) for orm_department in orm_departments
         ]
+        if not all(isinstance(department, entities.DepartmentEntity) for department in departments):
+            raise GottenWrongDepartmentSubclassError(
+                gotten_type=type(departments[0]),
+                expected_type=entities.DepartmentEntity,
+            )
+        return cast("list[entities.DepartmentEntity]", departments)
 
     @override
     async def fetch_one(self, department_id: uuid.UUID) -> entities.DepartmentEntity:
@@ -75,6 +81,7 @@ class DepartmentRepository(  # noqa: WPS215  # reason: explicit define implement
             )
         return department_entity
 
+    @override
     async def fetch_root(self) -> entities.RootDepartmentEntity:
         orm_root_department = await self._department_gateway.fetch_root_department()
         root_department_entity = _convert_orm_department_to_entity(orm_root_department)
