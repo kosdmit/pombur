@@ -3,6 +3,7 @@ from collections.abc import AsyncIterable, AsyncIterator
 import dishka as di
 import litestar
 from dishka import Provider, Scope, WithParents, provide, provide_all
+from litestar.types.protocols import Logger
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from apps.company_structure.application import services
@@ -18,6 +19,10 @@ class InfrastructureProvider(Provider):
         )
         async with db_session.begin():
             yield db_session
+
+    @provide(scope=Scope.REQUEST)
+    async def logger(self, request: litestar.Request) -> Logger:  # type: ignore[type-arg]  # reason: to correctly build dependencies tree
+        return request.logger
 
 
 class LitestarRepositoryProvider(Provider):
