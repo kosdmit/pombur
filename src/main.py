@@ -4,7 +4,9 @@ from contextlib import asynccontextmanager
 from dishka import make_async_container
 from dishka.integrations import litestar as litestar_integration
 from litestar import Litestar
+from litestar.config.cors import CORSConfig
 from litestar.contrib.sqlalchemy.plugins import SQLAlchemyAsyncConfig, SQLAlchemyInitPlugin
+from litestar.exceptions import LitestarException
 from litestar.openapi import OpenAPIConfig
 from litestar.openapi.plugins import SwaggerRenderPlugin
 
@@ -38,7 +40,7 @@ litestar_db_config = SQLAlchemyAsyncConfig(
 )
 
 
-class LitestarLoggerNotConfiguredError(Exception):
+class LitestarLoggerNotConfiguredError(LitestarException):
     def __init__(self) -> None:
         super().__init__("Litestar logger is not configured")
 
@@ -66,6 +68,7 @@ def get_app() -> Litestar:
         ),
         lifespan=[app_lifespan],
         plugins=[SQLAlchemyInitPlugin(litestar_db_config)],
+        cors_config=CORSConfig(allow_origins=config.allow_origins),
         dependencies={"limit_offset": litestar_utils.provide_limit_offset_pagination},
         debug=config.debug,
     )
