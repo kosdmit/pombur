@@ -1,6 +1,7 @@
 import os
 
 from advanced_alchemy.extensions.litestar import SQLAlchemyAsyncConfig
+from litestar.config.allowed_hosts import AllowedHostsConfig
 from litestar.config.cors import CORSConfig
 from litestar.config.csrf import CSRFConfig
 from pydantic import BaseModel, Field
@@ -24,3 +25,4 @@ db_config = SQLAlchemyAsyncConfig(
 )
 cors_config = CORSConfig(allow_origins=os.environ.get("ALLOW_ORIGINS", "").split(","))
 csrf_config = CSRFConfig(secret=os.environ["CSRF_SECRET"])
+allowed_hosts = AllowedHostsConfig(allowed_hosts=os.environ["ALLOWED_HOSTS"].split(","))

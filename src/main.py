@@ -44,6 +44,7 @@ def get_app() -> Litestar:
         plugins=[SQLAlchemyInitPlugin(config.db_config)],
         cors_config=config.cors_config,
         csrf_config=config.csrf_config,
+        allowed_hosts=config.allowed_hosts,
         dependencies={"limit_offset": litestar_utils.provide_limit_offset_pagination},
         debug=config.service_config.debug,
     )
