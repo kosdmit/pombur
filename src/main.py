@@ -41,10 +41,12 @@ def get_app() -> Litestar:
             path="/docs",
         ),
         lifespan=[app_lifespan],
+        middleware=[config.rate_limit_config.middleware],
         plugins=[SQLAlchemyInitPlugin(config.db_config)],
         cors_config=config.cors_config,
         csrf_config=config.csrf_config,
         allowed_hosts=config.allowed_hosts,
+        compression_config=config.compression_config,
         dependencies={"limit_offset": litestar_utils.provide_limit_offset_pagination},
         debug=config.service_config.debug,
     )
