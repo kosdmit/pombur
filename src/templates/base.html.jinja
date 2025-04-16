@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  {% include "layouts/head-page-meta.html.jinja" %}
+  {% include "layouts/head-css.html" %}
+</head>
+
+<body data-pc-preset="preset-1" data-pc-direction="ltr" data-pc-theme="light">
+  {% include "layouts/loader.html" %}
+  {% include "layouts/sidebar.html" %}
+  {% include "layouts/topbar.html" %}
+
+  <!-- Main Content -->
+  <div class="pc-container">
+    <div class="pc-content">
+      {% block content %}{% endblock %}
+    </div>
+  </div>
+
+  {% include "layouts/footer-block.html" %}
+  {% include "layouts/footer-js.html" %}
+
+  {% include "layouts/customizer.html" %}
+</body>
+</html>
