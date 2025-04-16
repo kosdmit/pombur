@@ -1,0 +1,24 @@
+<!-- [ breadcrumb ] start -->
+<div class="page-header">
+  <div class="page-block">
+    <div class="row align-items-center">
+      <div class="col-md-12">
+        <div class="page-header-title">
+          {% for breadcrumb in breadcrumbs %}
+            {% if breadcrumb.is_active %}
+              <h5 class="m-b-10">{{ breadcrumb.name }}</h5>
+            {% endif %}
+          {% endfor %}
+        </div>
+        <ul class="breadcrumb">
+          {% for breadcrumb in breadcrumbs %}
+            <li class="breadcrumb-item" {% if breadcrumb.is_active %} aria-current="page"{% endif %}>
+              <a href="{{ breadcrumb.url }}">{{ breadcrumb.name }}</a>
+            </li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- [ breadcrumb ] end -->
