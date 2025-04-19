@@ -1,11 +1,43 @@
-let chart = new OrgChart("#tree", {
-    // options
-    nodeBinding: {
-        field_0: "name"
-    },
-    nodes: [
-        { id: 1, name: "Amber McKenzie" },
-        { id: 2, pid: 1, name: "Ava Field" },
-        { id: 3, pid: 1, name: "Peter Stevens" }
-    ]
-});
+
+function getDepartments() {
+    return $.ajax({
+        url: "/company_structure/departments",
+        type: "GET",
+        dataType: "json"
+    });
+}
+
+function getRootDepartment() {
+    return $.ajax({
+        url: "/company_structure/departments/root",
+        type: "GET",
+        dataType: "json"
+    });
+}
+
+function initCompanyStructureChart() {
+    getDepartments().then(function (data) {
+        getRootDepartment().then(function (root_node) {
+            data.unshift(root_node);
+            var chart;
+            chart = new d3.OrgChart()
+                .container(".chart-container")
+                .data(data)
+                .nodeContent(function (d, i, arr, state) {
+                    const color = '#FFFFFF';
+                    return `
+                    <div style="font-family: 'Inter', sans-serif;background-color:${color}; position:absolute;margin-top:-1px; margin-left:-1px;width:${d.width}px;height:${d.height}px;border-radius:10px;border: 1px solid #E4E2E9">
+                      <div style="color:#08011E;position:absolute;right:20px;top:17px;font-size:10px;">
+                        <i class="fas fa-ellipsis-h"></i>
+                      </div>
+                      <div style="font-size:15px;color:#08011E;margin-left:20px;margin-top:32px"> ${d.data.title} </div>
+                      <div style="color:#716E7B;margin-left:20px;margin-top:3px;font-size:10px;"> ${d.data.positionName} </div>
+                    </div>
+                    `;
+                })
+                .render();
+        });
+    });
+}
+
+initCompanyStructureChart();
