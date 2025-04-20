@@ -1,10 +1,7 @@
-import uuid
 from abc import abstractmethod
 from typing import Protocol, TypeVar
 
 from litestar.repository import filters
-
-from apps.company_structure.domain import entities
 
 EntityT = TypeVar("EntityT")
 IdentifierT = TypeVar("IdentifierT")
@@ -28,27 +25,7 @@ class GenericSavePort[EntityT](Protocol):
         raise NotImplementedError
 
 
-class GenericDeletePort[EntityT](Protocol):
+class GenericDeletePort[IdentifierT](Protocol):
     @abstractmethod
-    async def delete(self, entity_id: uuid.UUID) -> None:
-        raise NotImplementedError
-
-
-class DepartmentsFetchPort(Protocol):
-    @abstractmethod
-    async def fetch_one(self, entity_id: uuid.UUID) -> entities.DepartmentEntity:
-        raise NotImplementedError
-
-    @abstractmethod
-    async def fetch_all(self) -> list[entities.DepartmentEntity]:
-        raise NotImplementedError
-
-    async def fetch_page(
-        self,
-        limit_offset: filters.LimitOffset,
-    ) -> tuple[list[entities.DepartmentEntity], int]:
-        raise NotImplementedError
-
-    @abstractmethod
-    async def fetch_root(self) -> entities.RootDepartmentEntity:
+    async def delete(self, entity_id: IdentifierT) -> None:
         raise NotImplementedError

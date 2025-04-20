@@ -32,7 +32,7 @@ def get_app() -> Litestar:
         middleware=[config.rate_limit_config.middleware],
         plugins=[SQLAlchemyInitPlugin(config.db_config)],
         cors_config=config.cors_config,
-        csrf_config=config.csrf_config,
+        # csrf_config=config.csrf_config,  # noqa: ERA001  # reason: disabled while development
         allowed_hosts=config.allowed_hosts_config,
         compression_config=config.compression_config,
         dependencies={"limit_offset": litestar_utils.provide_limit_offset_pagination},

@@ -1,25 +1,27 @@
 from typing import Literal
 
 from litestar.dto import DataclassDTO, DTOConfig
+from litestar.plugins.pydantic import PydanticDTO
 
+from apps.company_structure.application import schemas
 from apps.company_structure.domain import entities
 
 _RENAME_STRATEGY: Literal["camel"] = "camel"
 
 
-class ReadDepartmentDTO(DataclassDTO[entities.DepartmentEntity]):
+class ReadDepartmentListDTO(PydanticDTO[schemas.DepartmentListSchema]):
     config = DTOConfig(rename_strategy=_RENAME_STRATEGY)
 
 
-class ReadRootDepartmentDTO(DataclassDTO[entities.RootDepartmentEntity]):
+class ReadDepartmentDTO(PydanticDTO[schemas.DepartmentSchema]):
     config = DTOConfig(rename_strategy=_RENAME_STRATEGY)
 
 
-class WriteDepartmentDTO(DataclassDTO[entities.DepartmentEntity]):
+class WriteDepartmentDTO(PydanticDTO[schemas.DepartmentSchema]):
     config = DTOConfig(exclude={"id"}, rename_strategy=_RENAME_STRATEGY)
 
 
-class PatchDepartmentDTO(DataclassDTO[entities.DepartmentEntity]):
+class PatchDepartmentDTO(PydanticDTO[schemas.DepartmentSchema]):
     config = DTOConfig(exclude={"id"}, partial=True, rename_strategy=_RENAME_STRATEGY)
 
 

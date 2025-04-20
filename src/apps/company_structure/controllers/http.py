@@ -9,9 +9,9 @@ from litestar.dto import AbstractDTO, DTOData
 from litestar.repository import filters
 from litestar.types.empty import EmptyType
 
-from apps.company_structure.application import use_cases
+from apps.company_structure.application import schemas, use_cases
 from apps.company_structure.controllers import dtos
-from apps.company_structure.domain import entities
+from apps.company_structure.domain import aggregates, entities
 
 
 class Tags(Enum):
@@ -23,72 +23,72 @@ class DepartmentHTTPController(Controller):
     path = "/departments"
     id_path_param = "/{department_id:uuid}"
 
-    dto: type[AbstractDTO[entities.DepartmentEntity]] | None | EmptyType = dtos.WriteDepartmentDTO
-    return_dto: type[AbstractDTO[entities.DepartmentEntity]] | None | EmptyType = (
+    dto: type[AbstractDTO[schemas.DepartmentSchema]] | None | EmptyType = dtos.WriteDepartmentDTO
+    return_dto: type[AbstractDTO[schemas.DepartmentSchema]] | None | EmptyType = (
         dtos.ReadDepartmentDTO
     )
 
     tags: Sequence[str] | None = [Tags.departments.value]
 
-    @get()
+    @get(return_dto=dtos.ReadDepartmentListDTO)
     @inject
-    async def list(
+    async def get_list(
         self,
-        use_case: FromDishka[use_cases.GenericGetListUseCase[entities.DepartmentEntity]],
-    ) -> list[entities.DepartmentEntity]:
-        return await use_case.list()
+        use_case: FromDishka[use_cases.GenericGetListUseCase[schemas.DepartmentListSchema]],
+    ) -> list[schemas.DepartmentListSchema]:
+        return await use_case.get_list()
 
-    @get("/root", return_dto=dtos.ReadRootDepartmentDTO)
+    @get("/tree", dto=None, return_dto=None)
     @inject
-    async def get_root(
+    async def get_tree_list(
         self,
-        use_case: FromDishka[use_cases.GetRootDepartmentUseCase],
-    ) -> entities.RootDepartmentEntity:
-        return await use_case.get_root()
+        use_case: FromDishka[use_cases.GenericGetListUseCase[aggregates.DepartmentTreeAggregate]],
+    ) -> list[aggregates.DepartmentTreeAggregate]:
+        return await use_case.get_list()
 
     @get(path=id_path_param)
     @inject
     async def get(
         self,
-        use_case: FromDishka[use_cases.GenericGetUseCase[uuid.UUID, entities.DepartmentEntity]],
+        use_case: FromDishka[use_cases.GenericGetUseCase[uuid.UUID, schemas.DepartmentListSchema]],
         department_id: uuid.UUID,
-    ) -> entities.DepartmentEntity:
+    ) -> schemas.DepartmentListSchema:
         return await use_case.get(department_id)
 
     @post()
     @inject
     async def create(
         self,
-        use_case: FromDishka[use_cases.GenericCreateUseCase[entities.DepartmentEntity]],
-        data: DTOData[entities.DepartmentEntity],
-    ) -> entities.DepartmentEntity:
+        use_case: FromDishka[use_cases.GenericCreateUseCase[schemas.DepartmentSchema]],
+        data: DTOData[schemas.DepartmentSchema],
+    ) -> schemas.DepartmentSchema:
         return await use_case.create(data)
 
     @put(path=id_path_param)
     @inject
     async def update(
         self,
-        use_case: FromDishka[use_cases.UpdateDepartmentUseCase],
+        use_case: FromDishka[use_cases.GenericUpdateUseCase[uuid.UUID, schemas.DepartmentSchema]],
         department_id: uuid.UUID,
-        data: DTOData[entities.DepartmentEntity],
-    ) -> entities.DepartmentEntity:
+        data: DTOData[schemas.DepartmentSchema],
+    ) -> schemas.DepartmentSchema:
         return await use_case.update(department_id, data)
 
     @patch(path=id_path_param, dto=dtos.PatchDepartmentDTO)
     @inject
     async def partial_update(
         self,
-        use_case: FromDishka[use_cases.UpdateDepartmentUseCase],
+        use_case: FromDishka[use_cases.GenericUpdateUseCase[uuid.UUID, schemas.DepartmentSchema]],
         department_id: uuid.UUID,
-        data: DTOData[entities.DepartmentEntity],
-    ) -> entities.DepartmentEntity:
+        data: DTOData[schemas.DepartmentSchema],
+    ) -> schemas.DepartmentSchema:
         return await use_case.update(department_id, data)
 
     @delete(path=id_path_param)
     @inject
     async def delete(
         self,
-        use_case: FromDishka[use_cases.DeleteDepartmentUseCase],
+        use_case: FromDishka[use_cases.GenericDeleteUseCase[uuid.UUID]],
         department_id: uuid.UUID,
     ) -> None:
         await use_case.delete(department_id)

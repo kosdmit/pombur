@@ -7,7 +7,7 @@ from litestar.types.protocols import Logger
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from apps.company_structure.application import services
-from apps.company_structure.infrastructure import gateways, repository
+from apps.company_structure.infrastructure import gateways, repositories
 
 
 class InfrastructureProvider(Provider):
@@ -44,10 +44,12 @@ class AppProvider(Provider):
 
     services = provide_all(
         WithParents[services.DepartmentService],  # type: ignore[misc]
+        WithParents[services.DepartmentTreeService],  # type: ignore[misc]
         WithParents[services.EmployeeService],  # type: ignore[misc]
     )
 
     repositories = provide_all(
-        WithParents[repository.DepartmentRepository],  # type: ignore[misc]
-        WithParents[repository.EmployeeRepository],  # type: ignore[misc]
+        WithParents[repositories.department_repository.DepartmentRepository],  # type: ignore[misc]
+        WithParents[repositories.department_repository.DepartmentTreeRepository],  # type: ignore[misc]
+        WithParents[repositories.employee_repository.EmployeeRepository],  # type: ignore[misc]
     )

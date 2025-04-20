@@ -1,18 +1,15 @@
-import uuid
 from abc import abstractmethod
 from typing import Protocol, TypeVar
 
 from litestar.dto import DTOData
 from litestar.repository import filters
 
-from apps.company_structure.domain import entities
-
 EntityT = TypeVar("EntityT")
 IdentifierT = TypeVar("IdentifierT")
 
 
 class GenericGetListUseCase[EntityT](Protocol):
-    async def list(self) -> list[EntityT]:
+    async def get_list(self) -> list[EntityT]:
         raise NotImplementedError
 
 
@@ -31,23 +28,13 @@ class GenericCreateUseCase[EntityT](Protocol):
         raise NotImplementedError
 
 
-class UpdateDepartmentUseCase(Protocol):
+class GenericUpdateUseCase[IdentifierT, EntityT](Protocol):
     @abstractmethod
-    async def update(
-        self,
-        department_id: uuid.UUID,
-        department_data: DTOData[entities.DepartmentEntity],
-    ) -> entities.DepartmentEntity:
+    async def update(self, identifier: IdentifierT, input_data: DTOData[EntityT]) -> EntityT:
         raise NotImplementedError
 
 
-class DeleteDepartmentUseCase(Protocol):
+class GenericDeleteUseCase[IdentifierT](Protocol):
     @abstractmethod
-    async def delete(self, department_id: uuid.UUID) -> None:
-        raise NotImplementedError
-
-
-class GetRootDepartmentUseCase(Protocol):
-    @abstractmethod
-    async def get_root(self) -> entities.RootDepartmentEntity:
+    async def delete(self, identifier: IdentifierT) -> None:
         raise NotImplementedError
