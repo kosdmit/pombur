@@ -30,29 +30,41 @@ class DepartmentHTTPController(Controller):
 
     tags: Sequence[str] | None = [Tags.departments.value]
 
-    @get(return_dto=dtos.ReadDepartmentListDTO)
+    @get("/trees", dto=None, return_dto=None)
     @inject
-    async def get_list(
-        self,
-        use_case: FromDishka[use_cases.GenericGetListUseCase[schemas.DepartmentListSchema]],
-    ) -> list[schemas.DepartmentListSchema]:
-        return await use_case.get_list()
-
-    @get("/tree", dto=None, return_dto=None)
-    @inject
-    async def get_tree_list(
+    async def get_trees(
         self,
         use_case: FromDishka[use_cases.GenericGetListUseCase[aggregates.DepartmentTreeAggregate]],
     ) -> list[aggregates.DepartmentTreeAggregate]:
         return await use_case.get_list()
 
+    @get("trees/{root_id:uuid}", dto=None, return_dto=None)
+    @inject
+    async def get_tree(
+        self,
+        use_case: FromDishka[
+            use_cases.GenericGetUseCase[uuid.UUID, aggregates.DepartmentTreeAggregate]
+        ],
+        root_id: uuid.UUID,
+    ) -> aggregates.DepartmentTreeAggregate:
+        return await use_case.get(root_id)
+
+    @get("/trees/{root_id:uuid}/as_list", return_dto=dtos.ReadDepartmentDTO)
+    @inject
+    async def get_tree_as_list(
+        self,
+        use_case: FromDishka[use_cases.GetDepartmentTreeAsListUseCase],
+        root_id: uuid.UUID,
+    ) -> list[schemas.DepartmentSchema]:
+        return await use_case.get_one_as_list(root_id)
+
     @get(path=id_path_param)
     @inject
     async def get(
         self,
-        use_case: FromDishka[use_cases.GenericGetUseCase[uuid.UUID, schemas.DepartmentListSchema]],
+        use_case: FromDishka[use_cases.GenericGetUseCase[uuid.UUID, schemas.DepartmentSchema]],
         department_id: uuid.UUID,
-    ) -> schemas.DepartmentListSchema:
+    ) -> schemas.DepartmentSchema:
         return await use_case.get(department_id)
 
     @post()

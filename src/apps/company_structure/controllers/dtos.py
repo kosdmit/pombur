@@ -9,10 +9,6 @@ from apps.company_structure.domain import entities
 _RENAME_STRATEGY: Literal["camel"] = "camel"
 
 
-class ReadDepartmentListDTO(PydanticDTO[schemas.DepartmentListSchema]):
-    config = DTOConfig(rename_strategy=_RENAME_STRATEGY)
-
-
 class ReadDepartmentDTO(PydanticDTO[schemas.DepartmentSchema]):
     config = DTOConfig(rename_strategy=_RENAME_STRATEGY)
 

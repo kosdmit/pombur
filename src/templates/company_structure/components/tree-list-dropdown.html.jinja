@@ -1,0 +1,18 @@
+<div class="dropdown">
+  <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+    Dropdown button
+  </button>
+  <ul class="dropdown-menu">
+    {% for department_tree in tree_list %}
+      <li>
+        <a class="dropdown-item" href="#"
+           data-hx-get="{{ url_for('company_structure.org_chart', root_id=department_tree.root.id) }}"
+           data-hx-target=".chart-container"
+           data-hx-swap="outerHTML"
+        >
+          {{ department_tree.root.title }}
+        </a>
+      </li>
+    {% endfor %}
+  </ul>
+</div>

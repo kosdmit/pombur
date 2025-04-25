@@ -49,6 +49,7 @@ def _convert_department_data_to_tree_node(
 class DepartmentTreeService(  # noqa: WPS215  # reason: explicit define implemented interfaces
     use_cases.GenericGetUseCase[uuid.UUID, aggregates.DepartmentTreeAggregate],
     use_cases.GenericGetListUseCase[aggregates.DepartmentTreeAggregate],
+    use_cases.GetDepartmentTreeAsListUseCase,
 ):
     def __init__(
         self,
@@ -68,9 +69,20 @@ class DepartmentTreeService(  # noqa: WPS215  # reason: explicit define implemen
                 return tree
         raise DepartmentTreeNotFoundError(root_department_id)
 
+    @override
+    async def get_one_as_list(
+        self,
+        root_department_id: uuid.UUID,
+    ) -> list[schemas.DepartmentSchema]:
+        tree_list = await self._fetch_port.fetch_all()
+        for tree in tree_list:
+            if root_department_id == tree.root.id:
+                return _convert_department_tree_to_list(tree)
+        raise DepartmentTreeNotFoundError(root_department_id)
+
 
 class DepartmentService(  # noqa: WPS215  # reason: explicit define implemented interfaces
-    use_cases.GenericGetListUseCase[schemas.DepartmentListSchema],
+    use_cases.GenericGetListUseCase[list[schemas.DepartmentSchema]],
     use_cases.GenericGetUseCase[uuid.UUID, schemas.DepartmentSchema],
     use_cases.GenericCreateUseCase[schemas.DepartmentSchema],
     use_cases.GenericUpdateUseCase[uuid.UUID, schemas.DepartmentSchema],
@@ -87,14 +99,6 @@ class DepartmentService(  # noqa: WPS215  # reason: explicit define implemented 
         self._fetch_aggregate_port = fetch_aggregate_port
         self._save_port = save_port
         self._delete_port = delete_port
-
-    @override
-    async def get_list(self) -> list[schemas.DepartmentListSchema]:
-        tree_list = await self._fetch_aggregate_port.fetch_all()
-        return [
-            schemas.DepartmentListSchema.model_validate(_convert_department_tree_to_list(tree))
-            for tree in tree_list
-        ]
 
     @override
     async def create(
