@@ -8,6 +8,12 @@ from apps.company_structure.domain import aggregates
 from apps.company_structure.infrastructure import gateways, models
 
 
+def _convert_orm_department_to_schema(
+    orm_department: models.Department,
+) -> schemas.DepartmentSchema:
+    return schemas.DepartmentSchema.model_validate(orm_department.__dict__)
+
+
 class DepartmentRepository(  # noqa: WPS215  # reason: explicit define implemented interfaces
     ports.GenericFetchPort[uuid.UUID, schemas.DepartmentSchema],
     ports.GenericSavePort[schemas.DepartmentSchema],
@@ -24,7 +30,7 @@ class DepartmentRepository(  # noqa: WPS215  # reason: explicit define implement
     @override
     async def fetch_one(self, department_id: uuid.UUID) -> schemas.DepartmentSchema:
         orm_department = await self._department_gateway.get(department_id)
-        return schemas.DepartmentSchema.model_validate(orm_department)
+        return _convert_orm_department_to_schema(orm_department)
 
     @override
     async def save(self, department_data: schemas.DepartmentSchema) -> None:

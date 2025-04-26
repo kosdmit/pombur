@@ -22,12 +22,7 @@ class Tags(Enum):
 class DepartmentHTTPController(Controller):
     path = "/departments"
     id_path_param = "/{department_id:uuid}"
-
     dto: type[AbstractDTO[schemas.DepartmentSchema]] | None | EmptyType = dtos.WriteDepartmentDTO
-    return_dto: type[AbstractDTO[schemas.DepartmentSchema]] | None | EmptyType = (
-        dtos.ReadDepartmentDTO
-    )
-
     tags: Sequence[str] | None = [Tags.departments.value]
 
     @get("/trees", dto=None, return_dto=None)
@@ -49,7 +44,7 @@ class DepartmentHTTPController(Controller):
     ) -> aggregates.DepartmentTreeAggregate:
         return await use_case.get(root_id)
 
-    @get("/trees/{root_id:uuid}/as_list", return_dto=dtos.ReadDepartmentDTO)
+    @get("/trees/{root_id:uuid}/as_list")
     @inject
     async def get_tree_as_list(
         self,
@@ -67,7 +62,7 @@ class DepartmentHTTPController(Controller):
     ) -> schemas.DepartmentSchema:
         return await use_case.get(department_id)
 
-    @post()
+    @post(name="company_structure.create_department")
     @inject
     async def create(
         self,

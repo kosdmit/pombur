@@ -72,13 +72,13 @@ class DepartmentTreeService(  # noqa: WPS215  # reason: explicit define implemen
     @override
     async def get_one_as_list(
         self,
-        root_department_id: uuid.UUID,
+        department_id: uuid.UUID,
     ) -> list[schemas.DepartmentSchema]:
         tree_list = await self._fetch_port.fetch_all()
         for tree in tree_list:
-            if root_department_id == tree.root.id:
+            if department_id in tree:
                 return _convert_department_tree_to_list(tree)
-        raise DepartmentTreeNotFoundError(root_department_id)
+        raise DepartmentTreeNotFoundError(department_id)
 
 
 class DepartmentService(  # noqa: WPS215  # reason: explicit define implemented interfaces
@@ -99,6 +99,10 @@ class DepartmentService(  # noqa: WPS215  # reason: explicit define implemented 
         self._fetch_aggregate_port = fetch_aggregate_port
         self._save_port = save_port
         self._delete_port = delete_port
+
+    @override
+    async def get(self, department_id: uuid.UUID) -> schemas.DepartmentSchema:
+        return await self._fetch_port.fetch_one(department_id)
 
     @override
     async def create(

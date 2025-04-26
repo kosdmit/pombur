@@ -23,7 +23,8 @@ def get_app() -> Litestar:
     litestar_app = Litestar(
         route_handlers=[
             index.router,
-            company_structure.router,
+            company_structure.api_router,
+            company_structure.templates_router,
             create_static_files_router(path="/", directories=["static"]),
         ],
         on_startup=[logs.log_on_startup],

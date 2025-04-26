@@ -1,0 +1,19 @@
+<div class="toast fade show" role="alert" aria-live="assertive" aria-atomic="true" id="test-toast-id">
+  <div class="toast-header">
+    <strong class="me-auto">{% if status == 'success' %}Успешно{% else %}Ошибка{% endif %}</strong>
+    <small>{{ timestamp }}</small>
+    <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+  </div>
+  <div class="toast-body">{{ message }}</div>
+  <p class="d-inline-flex gap-1">
+    <button class="btn text-body-tertiary" type="button" data-bs-toggle="collapse"
+            data-bs-target="#collapseExample" aria-expanded="false"
+            aria-controls="collapseExample"
+    >
+      Подробности
+    </button>
+  </p>
+  <div class="collapse" id="collapseExample">
+    <div class="card card-body m-0">{{ details }}</div>
+  </div>
+</div>

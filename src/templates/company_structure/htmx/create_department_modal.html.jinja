@@ -1,0 +1,32 @@
+<div class="modal-dialog modal-dialog-centered">
+  <div class="modal-content">
+    <form data-hx-post="{{ url_for('htmx.company_structure.create_department') }}"
+          data-hx-trigger="submit"
+          data-hx-ext="json-enc"
+          data-hx-target="#toast-container"
+          data-hx-swap="beforeend"
+    >
+      <div class="modal-header">
+        <h5 class="modal-title">Создать подразделение</h5>
+      </div>
+      <div class="modal-body">
+        <select class="form-select" aria-label="Default select example" name="parent_id" id="parent_id_input">
+          <option selected value="{{ selected_parent_department.id }}">
+            {{ selected_parent_department.title }}
+          </option>
+          {% for department in department_list %}
+            <option value="{{ department.id }}">{{ department.title }}</option>
+          {% endfor %}
+        </select>
+        <div class="mb-3">
+          <label for="title_input" class="form-label">Название</label>
+          <input type="text" class="form-control" id="title_input" name="title">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+        <button type="submit" class="btn btn-primary">Добавить</button>
+      </div>
+    </form>
+  </div>
+</div>

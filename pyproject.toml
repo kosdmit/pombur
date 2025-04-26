@@ -57,6 +57,9 @@ ignore = [
     "D105",  # Missing docstring in magic method
     "D107",  # Missing docstring in `__init__`
 
+    "TD003",  # Missing issue link
+    "FIX002",  # Line contains TODO
+
     # formatter compatibility
     "COM812",  # Missing trailing comma
 ]
