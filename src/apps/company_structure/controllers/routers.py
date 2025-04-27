@@ -17,5 +17,6 @@ templates_router = Router(
         web_interface.IndexHTTPController,
         web_interface.OrgChartController,
         web_interface.CreateDepartmentController,
+        web_interface.DeleteDepartmentController,
     ],
 )

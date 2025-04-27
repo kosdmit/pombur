@@ -86,7 +86,7 @@ class DepartmentService(  # noqa: WPS215  # reason: explicit define implemented 
     use_cases.GenericGetUseCase[uuid.UUID, schemas.DepartmentSchema],
     use_cases.GenericCreateUseCase[schemas.DepartmentSchema],
     use_cases.GenericUpdateUseCase[uuid.UUID, schemas.DepartmentSchema],
-    use_cases.GenericDeleteUseCase[uuid.UUID],
+    use_cases.GenericDeleteUseCase[uuid.UUID, schemas.DepartmentSchema],
 ):
     def __init__(
         self,

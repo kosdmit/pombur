@@ -1,16 +1,14 @@
 <div class="modal-dialog modal-dialog-centered">
   <div class="modal-content">
-    <form data-hx-post="{{ url_for('htmx.company_structure.create_department') }}"
-          data-hx-trigger="submit"
-          data-hx-ext="json-enc"
-          data-hx-target="#toast-container"
-          data-hx-swap="beforeend"
-    >
+    <form id="create-department-form"
+          data-url="{{ url_for('htmx.company_structure.create_department') }}"
+          data-target="#toast-container">
       <div class="modal-header">
         <h5 class="modal-title">Создать подразделение</h5>
       </div>
       <div class="modal-body">
-        <select class="form-select" aria-label="Default select example" name="parent_id" id="parent_id_input">
+        <select class="form-select" aria-label="Default select example" name="parent_id"
+                id="parent_id_input">
           <option selected value="{{ selected_parent_department.id }}">
             {{ selected_parent_department.title }}
           </option>
@@ -30,3 +28,36 @@
     </form>
   </div>
 </div>
+
+<script>
+  $(document).on('submit', '#create-department-form', function (e) {
+    e.preventDefault();
+    const form = $(this);
+    const url = form.data('url');
+    const target = $(form.data('target'));
+
+    // Convert form data to JSON
+    const formData = {};
+    $.each(form.serializeArray(), function (_, field) {
+      formData[field.name] = field.value;
+    });
+
+    // Send POST request
+    $.ajax({
+      url: url,
+      method: 'POST',
+      contentType: 'application/json',
+      data: JSON.stringify(formData),
+      success: function (data) {
+        // Append response to target container
+        target.append(data);
+        // Hide modal
+        form.closest('.modal').modal('hide');
+      },
+      error: function (error) {
+        console.error('Submission failed:', error);
+        alert('Ошибка при создании подразделения');
+      }
+    });
+  });
+</script>

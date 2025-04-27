@@ -17,7 +17,7 @@ class GottenMoreThanOneRootDepartmentError(Exception):
         super().__init__("More than one root department fetched from the database.")
 
 
-class DepartmentGateway(litestar_repository.SQLAlchemyAsyncRepository[models.Department]):
+class DepartmentGateway(litestar_repository.SQLAlchemyAsyncSlugRepository[models.Department]):
     model_type = models.Department
 
     async def fetch_root_department(self) -> models.Department:

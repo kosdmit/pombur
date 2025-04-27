@@ -5,7 +5,7 @@ from typing import Literal
 import pydantic
 from dishka import FromDishka
 from dishka.integrations.litestar import inject
-from litestar import Controller, get, post
+from litestar import Controller, delete, get, post, status_codes
 from litestar.dto import DTOData
 from litestar.response import Template
 from litestar_htmx import HTMXTemplate
@@ -14,6 +14,8 @@ from apps.company_structure.application import schemas, use_cases
 from apps.company_structure.controllers import dtos
 from apps.company_structure.domain import aggregates
 from common.controllers import web_interface
+
+_CONTEXT_MODEL_SERIALIZATION_MODE: Literal["json", "python"] = "json"
 
 
 class IndexPageContext(
@@ -87,7 +89,7 @@ class OrgChartController(Controller):
         )
         return HTMXTemplate(
             template_name="company_structure/htmx/org-chart.html.jinja",
-            context=context.model_dump(mode="json"),
+            context=context.model_dump(mode=_CONTEXT_MODEL_SERIALIZATION_MODE),
         )
 
 
@@ -96,7 +98,7 @@ class CreateDepartmentModalContext(pydantic.BaseModel):
     department_list: list[schemas.DepartmentSchema]
 
 
-class CreateDepartmentResultToastContext(pydantic.BaseModel):
+class ResultToastContext(pydantic.BaseModel):
     status: Literal["success", "error"]
     timestamp: datetime
     message: str
@@ -123,7 +125,7 @@ class CreateDepartmentController(Controller):
         )
         return HTMXTemplate(
             template_name="company_structure/htmx/create_department_modal.html.jinja",
-            context=context.model_dump(mode="json"),
+            context=context.model_dump(mode=_CONTEXT_MODEL_SERIALIZATION_MODE),
         )
 
     @post(
@@ -140,14 +142,14 @@ class CreateDepartmentController(Controller):
         try:
             created_department = await use_case.create(data)
         except Exception as exc:  # noqa: BLE001  # TODO @kosdmit: Refactor with custom exceptions handler for template_router
-            context = CreateDepartmentResultToastContext(
+            context = ResultToastContext(
                 status="error",
                 timestamp=datetime.now(tz=UTC),
                 message="Failed to create department",
                 details=str(exc),
             )
         else:
-            context = CreateDepartmentResultToastContext(
+            context = ResultToastContext(
                 status="success",
                 timestamp=datetime.now(tz=UTC),
                 message="Department created successfully",
@@ -156,5 +158,61 @@ class CreateDepartmentController(Controller):
 
         return HTMXTemplate(
             template_name="company_structure/htmx/toast.html.jinja",
+            context=context.model_dump(mode=_CONTEXT_MODEL_SERIALIZATION_MODE),
+        )
+
+
+class DeleteDepartmentModalContext(pydantic.BaseModel):
+    department_to_delete: schemas.DepartmentSchema
+
+
+class DeleteDepartmentController(Controller):
+    @get(
+        path="/departments/{department_id:uuid}/delete_modal",
+        name="htmx.company_structure.delete_modal",
+    )
+    @inject
+    async def get_delete_modal(
+        self,
+        department_id: uuid.UUID,
+        use_case: FromDishka[use_cases.GenericGetUseCase[uuid.UUID, schemas.DepartmentSchema]],
+    ) -> HTMXTemplate:
+        context = DeleteDepartmentModalContext(
+            department_to_delete=await use_case.get(department_id),
+        )
+        return HTMXTemplate(
+            template_name="company_structure/htmx/delete_department_modal.html.jinja",
             context=context.model_dump(mode="json"),
+        )
+
+    @delete(
+        path="/departments/{department_id:uuid}",
+        name="htmx.company_structure.delete_department",
+        status_code=status_codes.HTTP_200_OK,
+    )
+    @inject
+    async def delete_department(
+        self,
+        use_case: FromDishka[use_cases.GenericDeleteUseCase[uuid.UUID, schemas.DepartmentSchema]],
+        department_id: uuid.UUID,
+    ) -> HTMXTemplate:
+        try:
+            await use_case.delete(department_id)
+        except Exception as exc:  # noqa: BLE001  # TODO @kosdmit: Refactor with custom exceptions handler for template_router
+            context = ResultToastContext(
+                status="error",
+                timestamp=datetime.now(tz=UTC),
+                message="Failed to delete department",
+                details=str(exc),
+            )
+        else:
+            context = ResultToastContext(
+                status="success",
+                timestamp=datetime.now(tz=UTC),
+                message="Department deleted successfully",
+                details=str(department_id),
+            )
+        return HTMXTemplate(
+            template_name="company_structure/htmx/toast.html.jinja",
+            context=context.model_dump(mode=_CONTEXT_MODEL_SERIALIZATION_MODE),
         )

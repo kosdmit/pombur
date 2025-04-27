@@ -13,17 +13,23 @@
             <i class="fas fa-ellipsis-h dropdown-toggle"></i>
             <ul class="dropdown-menu">
               <li>
-                <button class="dropdown-item"
-                        data-hx-get="/company_structure/departments/${d.data.id}/create_modal  "
-                        data-hx-target="#modals-here"
-                        data-hx-trigger="click"
+                <button class="dropdown-item open-create-department-modal-button"
+                        data-url="/company_structure/departments/${d.data.id}/create_modal"
+                        data-target="#modals-here"
                         data-bs-toggle="modal"
-                        data-bs-target="#modals-here"
-                >
+                        data-bs-target="#modals-here">
                   Добавить
                 </button>
               </li>
-              <li><a class="dropdown-item" href="#">Удалить</a></li>
+              <li>
+                <button class="dropdown-item open-delete-department-modal-button"
+                        data-url="/company_structure/departments/${d.data.id}/delete_modal"
+                        data-target="#modals-here"
+                        data-bs-toggle="modal"
+                        data-bs-target="#modals-here">
+                  Удалить
+                </button>
+              </li>
               <li><a class="dropdown-item" href="#">Редактировать</a></li>
             </ul>
           </div>
@@ -55,4 +61,22 @@
         });
     })
     .render();
+
+  $(document).on(
+    'click',
+    '.open-create-department-modal-button, .open-delete-department-modal-button',
+    function() {
+      const button = $(this);
+      const url = button.data('url');
+      const target = $(button.data('target'));
+
+      // Fetch modal content
+      $.get(url, function(data) {
+        // Insert content into modal container
+        target.html(data);
+      }).fail(function(error) {
+        console.error('Error loading modal:', error);
+      });
+    }
+  );
 </script>

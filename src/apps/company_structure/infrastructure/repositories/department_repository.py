@@ -34,13 +34,31 @@ class DepartmentRepository(  # noqa: WPS215  # reason: explicit define implement
 
     @override
     async def save(self, department_data: schemas.DepartmentSchema) -> None:
-        await self._department_gateway.upsert(models.Department(**department_data.model_dump()))
+        orm_object = await self._convert_to_orm(department_data)
+        await self._department_gateway.upsert(orm_object)
         await self._db_session.commit()
 
     @override
     async def delete(self, department_id: uuid.UUID) -> None:
         await self._department_gateway.delete(department_id)
         await self._db_session.commit()
+
+    async def _convert_to_orm(
+        self,
+        department_data: schemas.DepartmentSchema,
+    ) -> models.Department:
+        existent_orm_object = await self._department_gateway.get_one_or_none(id=department_data.id)
+        if existent_orm_object is None:
+            slug = await self._department_gateway.get_available_slug(department_data.title)
+        else:
+            slug = existent_orm_object.slug
+
+        return models.Department(
+            id=department_data.id,
+            slug=slug,
+            title=department_data.title,
+            parent_id=department_data.parent_id,
+        )
 
 
 class GottenWrongDepartmentSubclassError(TypeError):

@@ -1,0 +1,40 @@
+<div class="modal-dialog modal-dialog-centered">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h5 class="modal-title">Удалить подразделение</h5>
+    </div>
+    <div class="modal-body">
+      <p>Вы уверены, что хотите удалить подразделение?</p>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+      <button type="submit" class="btn btn-primary delete-department-button"
+              data-url="{{ url_for('htmx.company_structure.delete_department', department_id=department_to_delete.id) }}"
+              data-target="#toast-container">
+        Удалить
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+  $(document).on('click', '.delete-department-button[data-url]', function (e) {
+    const button = $(this);
+    const url = button.data('url');
+    const target = $(button.data('target'));
+
+    // Send DELETE request
+    $.ajax({
+      url: url,
+      method: 'DELETE',
+      success: function (data) {
+        // Append response to target container
+        target.append(data);
+      },
+      error: function (error) {
+        console.error('Delete failed:', error);
+        alert('Failed to delete department');
+      }
+    });
+  });
+</script>

@@ -12,8 +12,7 @@
           <a class="dropdown-item" href="#"
              data-hx-get="{{ url_for('company_structure.org_chart', root_id=department_tree.root.id) }}"
              data-hx-target=".chart-container"
-             data-hx-swap="outerHTML"
-          >
+             data-hx-swap="outerHTML">
             {{ department_tree.root.title }}
           </a>
         </li>
@@ -40,10 +39,10 @@
   </div>
 
   <div id="modals-here"
-    class="modal modal-blur fade"
-    style="display: none"
-    aria-hidden="false"
-    tabindex="-1">
+       class="modal modal-blur fade"
+       style="display: none"
+       aria-hidden="false"
+       tabindex="-1">
     <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
         <div class="modal-content"></div>
     </div>
@@ -56,5 +55,4 @@
   <script src="https://d3js.org/d3.v7.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/d3-org-chart@3"></script>
   <script src="https://cdn.jsdelivr.net/npm/d3-flextree@2.1.2/build/d3-flextree.js"></script>
-  <script src="/scripts/company_structure_tree.js"></script>
 {% endblock %}

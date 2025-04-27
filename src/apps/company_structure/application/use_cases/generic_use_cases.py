@@ -34,7 +34,7 @@ class GenericUpdateUseCase[IdentifierT, EntityT](Protocol):
         raise NotImplementedError
 
 
-class GenericDeleteUseCase[IdentifierT](Protocol):
+class GenericDeleteUseCase[IdentifierT, EntityT](Protocol):
     @abstractmethod
     async def delete(self, identifier: IdentifierT) -> None:
         raise NotImplementedError

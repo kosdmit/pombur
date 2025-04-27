@@ -13,14 +13,6 @@ class Base(base.UUIDAuditBase):
     __abstract__ = True
 
 
-class Department(Base):
-    __table_args__ = (sa.Index("ix_department_parent_id", "parent_id"),)
-
-    title: Mapped[str] = mapped_column(sa.String(_DEFAULT_VARCHAR_LENGTH))
-    parent_id: Mapped[UUID | None] = mapped_column(sa.ForeignKey("department.id"), nullable=True)
-    head_id: Mapped[UUID | None] = mapped_column(sa.ForeignKey("employee.id"), nullable=True)
-
-
 @declarative_mixin
 class SlugKey:
     """Slug unique Field Model Mixin."""
@@ -29,6 +21,14 @@ class SlugKey:
     slug: Mapped[str] = mapped_column(
         sa.String(length=100), nullable=False, unique=True, sort_order=-9
     )
+
+
+class Department(Base, SlugKey):
+    __table_args__ = (sa.Index("ix_department_parent_id", "parent_id"),)
+
+    title: Mapped[str] = mapped_column(sa.String(_DEFAULT_VARCHAR_LENGTH))
+    parent_id: Mapped[UUID | None] = mapped_column(sa.ForeignKey("department.id"), nullable=True)
+    head_id: Mapped[UUID | None] = mapped_column(sa.ForeignKey("employee.id"), nullable=True)
 
 
 class Employee(Base, SlugKey):

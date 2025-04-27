@@ -95,7 +95,7 @@ class DepartmentHTTPController(Controller):
     @inject
     async def delete(
         self,
-        use_case: FromDishka[use_cases.GenericDeleteUseCase[uuid.UUID]],
+        use_case: FromDishka[use_cases.GenericDeleteUseCase[uuid.UUID, schemas.DepartmentSchema]],
         department_id: uuid.UUID,
     ) -> None:
         await use_case.delete(department_id)
