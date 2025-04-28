@@ -2,20 +2,7 @@ import uuid
 from collections.abc import Iterator
 from dataclasses import dataclass
 
-
-class ForbiddenDeleteRootNodeError(Exception):
-    def __init__(self) -> None:
-        super().__init__("Cannot delete root node")
-
-
-class ForbiddenDeleteDepartmentWithChildrenError(Exception):
-    def __init__(self) -> None:
-        super().__init__("Cannot delete department with children")
-
-
-class DepartmentTreeNodeNotFoundError(Exception):
-    def __init__(self) -> None:
-        super().__init__("Department tree node not found")
+from apps.company_structure.domain import exceptions as domain_exceptions
 
 
 @dataclass
@@ -46,12 +33,12 @@ class DepartmentTreeAggregate:
         for node in self:
             if node.id == node_id:
                 return node
-        raise DepartmentTreeNodeNotFoundError
+        raise domain_exceptions.DepartmentTreeNodeNotFoundError
 
     def remove_if_has_no_children(self, node_id: uuid.UUID) -> None:
         node = self[node_id]
         if node.children:
-            raise ForbiddenDeleteDepartmentWithChildrenError
+            raise domain_exceptions.ForbiddenDeleteDepartmentWithChildrenError
         self._remove_department(node_id)
 
     def remove_with_children(self, node_id: uuid.UUID) -> None:
@@ -66,11 +53,11 @@ class DepartmentTreeAggregate:
             for child in node.children:
                 if child.id == node_id:
                     return node
-        raise DepartmentTreeNodeNotFoundError
+        raise domain_exceptions.DepartmentTreeNodeNotFoundError
 
     def _remove_department(self, node_id: uuid.UUID) -> None:
         node = self[node_id]
         if node is self.root:
-            raise ForbiddenDeleteRootNodeError
+            raise domain_exceptions.ForbiddenDeleteRootDepartmentError
         parent = self._find_parent(node_id)
         parent.children.remove(node)

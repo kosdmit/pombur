@@ -2,12 +2,12 @@ import pydantic
 from litestar import Controller, MediaType, get
 from litestar.response import Template
 
-from common.controllers import web_interface
+from common.controllers import context_schemas as common_context_schemas
 
 
 class IndexPageContext(
-    web_interface.HeadPageMetaContext,
-    web_interface.BreadcrumbsContext,
+    common_context_schemas.HeadPageMetaContext,
+    common_context_schemas.BreadcrumbsContext,
     pydantic.BaseModel,
 ):
     """Index page context.
@@ -25,7 +25,9 @@ class IndexHTTPController(Controller):
             page_title="Home",
             page_description="Index page description",
             page_keywords="Index page keywords",
-            breadcrumbs=[web_interface.BreadcrumbItem(name="Home", url="/", is_active=True)],
+            breadcrumbs=[
+                common_context_schemas.BreadcrumbItem(name="Home", url="/", is_active=True),
+            ],
         )
 
         return Template("index/index.html.jinja", context=context.model_dump())

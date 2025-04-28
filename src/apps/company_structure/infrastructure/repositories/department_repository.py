@@ -5,6 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from apps.company_structure.application import ports, schemas
 from apps.company_structure.domain import aggregates
+from apps.company_structure.domain import exceptions as domain_exceptions
 from apps.company_structure.infrastructure import gateways, models
 
 
@@ -122,7 +123,7 @@ class DepartmentTreeRepository(  # noqa: WPS215  # reason: explicit define imple
         for tree in tree_list:
             if department_id in tree:
                 return tree
-        raise aggregates.DepartmentTreeNodeNotFoundError
+        raise domain_exceptions.DepartmentTreeNodeNotFoundError
 
     @override
     async def fetch_all(self) -> list[aggregates.DepartmentTreeAggregate]:
